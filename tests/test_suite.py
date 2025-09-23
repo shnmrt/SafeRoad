@@ -10,6 +10,7 @@ def suite():
         "test_pipeline",
         "test_database",
         "test_plotter",
+        "test_saferoad",
     ]:
         suite.addTests(laoder.loadTestsFromName(f"tests.{module}"))
 
