@@ -1,4 +1,5 @@
 from pathlib import Path
+from numpy import where as npwhere
 
 
 class Pipeline:
@@ -148,18 +149,16 @@ class Pipeline:
             -- cut the lines into segments
             cut AS (
             SELECT
-                
                 ST_LineSubstring(
-                geom,
-                s / NULLIF(len_m, 0),
-                e / NULLIF(len_m, 0)
+                    geom,
+                    s / NULLIF(len_m, 0),
+                    e / NULLIF(len_m, 0)
                 ) AS geom
             FROM windows
             WHERE len_m > 0
             )
             -- filter out empty geometries
-            SELECT
-            geom
+            SELECT geom
             FROM cut
             WHERE NOT ST_IsEmpty(geom);
             """
@@ -463,8 +462,10 @@ class Pipeline:
             """Calculate average displacement time series for patches (Average Local Displacement (ALD)).
 
             This method generates an SQL query to calculate the average displacement
-            time series for each patch by averaging the displacement values of points within each patch for the specified date fields.
-            It assumes that the point table contains a geometry column, displacement columns for each date field, and that the patch table contains a geometry column and a unique identifier for each patch.
+            time series for each patch by averaging the displacement values of points within each patch
+            for the specified date fields. It assumes that the point table contains a geometry column,
+            displacement columns for each date field, and that the patch table contains a geometry column
+            and a unique identifier for each patch.
 
             :param date_fields: List of column names representing displacement values at different dates.
             :type date_fields: list[str]
@@ -522,7 +523,7 @@ class Pipeline:
         def select_lcps(table_name: str = "pspoint") -> str:
             """Select linear control points (LCPs) for patches.
 
-            This method generates an SQL query to select linear control points (LCPs) for each patch by identifying the point with the minimum absolute average velocity within each patch.
+            This method generates an SQL query to select local control points (LCPs) for each patch by identifying the point with the minimum absolute average velocity within each patch.
 
             :param table_name: The name of the table containing the points, default is "pspoint".
             :type table_name: str
@@ -682,6 +683,80 @@ class Pipeline:
             """
 
         @staticmethod
+        def calc_med_std_disp_ts_lcp(
+            date_fields: list[str], table_name: str = "pspoint"
+        ) -> str:
+            """Calculate average and standard deviation of displacement time series based on LCPs.
+
+            This method generates an SQL query to calculate the average and standard
+            deviation of displacement time series for each patch based on the displacement
+            values of points within each patch relative to the local control point (LCP).
+            It assumes that the point table contains columns for displacement values at
+            different dates and that the patch table contains a geometry column and a unique
+            identifier for each patch.
+
+            :param date_fields: List of column names representing displacement values at different dates.
+            :type date_fields: list[str]
+            :param table_name: The name of the table containing the points, default is "pspoint".
+            :type table_name: str
+            :return: SQL query string to calculate average and standard deviation of displacement time series based on LCPs.
+            :rtype: str
+            """
+            expression_to_select_date_fields = (
+                "[" + ", ".join([i for i in date_fields]) + "]"
+            )
+            indices = range(1, len(date_fields) + 1)
+            expression_to_explode = ",".join(
+                f"list_extract(displacement, {i}) as {date_fields[i-1]}"
+                for i in indices
+            )
+            expresion_for_avg_per_date = ", ".join([f"AVG({i})" for i in date_fields])
+            expresion_for_std_per_date = ", ".join(
+                [f"stddev_pop({i})" for i in date_fields]
+            )
+            return f"""
+            ALTER TABLE patches ADD COLUMN med_disp_ts_lcp DOUBLE[];
+            ALTER TABLE patches ADD COLUMN med_std_disp_ts_lcp DOUBLE[];
+            WITH y as (
+                SELECT patch_id, {expression_to_select_date_fields} as y
+                FROM {table_name}
+                WHERE patch_id IS NOT NULL
+            ),
+            x as (
+                SELECT patch_id, {expression_to_select_date_fields} as x
+                FROM {table_name}
+                WHERE uid IN (SELECT lcp_uid FROM patches WHERE lcp_uid IS NOT NULL)
+            ),
+            process as (
+                SELECT
+                    x.patch_id,
+                    list_transform(list_zip(y.y, x.x), arr -> arr[1] - arr[2]) as displacement
+                FROM x
+                JOIN y
+                ON x.patch_id = y.patch_id
+            ),
+            exploded AS (
+                SELECT
+                    patch_id,
+                    {expression_to_explode}
+                FROM process
+            ),
+            final AS (
+                SELECT 
+                    patch_id,
+                    ARRAY[{expresion_for_avg_per_date}] AS med_disp_ts_lcp,
+                    ARRAY[{expresion_for_std_per_date}] AS med_std_disp_ts_lcp
+                FROM exploded
+                GROUP BY patch_id
+            )
+            UPDATE patches
+            SET med_disp_ts_lcp = final.med_disp_ts_lcp,
+                med_std_disp_ts_lcp = final.med_std_disp_ts_lcp
+            FROM final
+            WHERE patches.uid = final.patch_id;
+            """
+
+        @staticmethod
         def calc_avg_velocity_lcp(table_name: str = "pspoint") -> str:
             """Calculate average velocity based on local control points (LCPs) for points.
 
@@ -760,33 +835,154 @@ class Pipeline:
             patches table. The unit parameter allows for specifying the measurement unit
             (meters, centimeters, or millimeters) to appropriately scale the threshold.
 
-            :param unit: The measurement unit for velocity ("m", "cm", or "mm").
-            :type unit: str
+            :param scaling_factor: The factor to scale the velocity threshold based on the unit.
+            :type scaling_factor: float
             :param table_name: The name of the table containing the points, default is "pspoint".
             :type table_name: str
-            :raises ValueError: If the provided unit is not recognized.
             :return: SQL query string to identify outlier points.
             :rtype: str
             """
 
             return f""" 
-            ALTER TABLE patches ADD COLUMN outlier_uid INTEGER;
-            WITH subquery AS (
-                SELECT
-                    patch_id,
-                    uid,
+            CREATE OR REPLACE TABLE outliers AS
+                SELECT patch_id, uid
                 FROM {table_name}
-                WHERE ABS(avg_velocity_lcp) > 5 / {scaling_factor} 
-                QUALIFY ROW_NUMBER() OVER 
-                (         
-                    PARTITION BY patch_id
-                    ORDER BY ABS(avg_velocity_lcp) DESC
-                ) = 1
+                WHERE ABS(avg_velocity_lcp) > 5 / {scaling_factor}
+                AND patch_id IS NOT NULL;
+            """
+
+        @staticmethod
+        def calc_outliers_avg_lcd(
+            table_name: str = "pspoint", date_vector=[int], date_names=[str]
+        ) -> str:
+            """Calculate outliers based on average local control displacement (LCD).
+
+            This method generates an SQL query to identify outlier points based on their
+            displacement time series relative to the average local control displacement (LCD)
+            of their associated patches. Points with displacement values exceeding the average
+            LCD by more than standard deviations at any time point are marked as outliers
+            by inserting their unique identifier and patch ID into a new outliers table.
+
+            :param table_name: The name of the table containing the points, default is "pspoint".
+            :type table_name: str
+            :param date_vector: List of time differences in days from the first date.
+            :type date_vector: list[int]
+            :param date_names: List of column names representing displacement values at different dates.
+            :type date_names: list[str]
+            :return: SQL query string to identify outlier points based on average LCD.
+            :rtype: str
+            """
+
+            if date_vector.max() < 730:
+                return ""
+
+            first_index = npwhere(date_vector >= date_vector - 730)[0][0]
+            column_select = ", ".join(date_names[first_index:])
+
+            return f"""
+            with underthreshold as (
+                SELECT 
+                    uid, 
+                    patch_id,
+                    ARRAY[{column_select}] as disp_ts 
+                FROM {table_name}
+                WHERE uid NOT IN (SELECT uid FROM outliers)
+                AND patch_id IS NOT NULL
+            ),
+            sel_ts as (
+                SELECT 
+                    uid, 
+                    avg_disp_ts_lcp[{first_index}:] as avg,
+                    std_disp_ts_lcp[{first_index}:] as std,
+                FROM patches
+                WHERE patches.uid IN (SELECT patch_id FROM underthreshold)  
+            ),
+            joined as (
+                SELECT * from underthreshold
+                JOIN sel_ts on sel_ts.uid = underthreshold.patch_id
+            ),
+            ald_points as (
+                SELECT
+                    uid,
+                    patch_id,
+                    list_min(
+                        list_apply(
+                            array_zip(disp_ts, avg, std),
+                            x -> abs(x[1]-x[2]) > x[3]
+                        )
+                    ) as all_greater
+                FROM joined
+                WHERE all_greater = true
             )
-            UPDATE patches
-            SET outlier_uid = subquery.uid
-            FROM subquery
-            WHERE patches.uid = subquery.patch_id;
+            INSERT INTO outliers (uid, patch_id)
+            SELECT uid, patch_id FROM ald_points
+            """
+
+        @staticmethod
+        def calc_outliers_med_lcd(
+            table_name: str = "pspoint", date_vector=[int], date_names=[str]
+        ) -> str:
+            """Calculate outliers based on median local control displacement (LCD).
+
+            This method generates an SQL query to identify outlier points based on their
+            displacement time series relative to the median local control displacement (LCD)
+            of their associated patches. Points with displacement values exceeding the median
+            LCD by more than standard deviations at any time point are marked as outliers
+            by inserting their unique identifier and patch ID into a new outliers table.
+
+            :param table_name: The name of the table containing the points, default is "pspoint".
+            :type table_name: str
+            :param date_vector: List of time differences in days from the first date.
+            :type date_vector: list[int]
+            :param date_names: List of column names representing displacement values at different dates.
+            :type date_names: list[str]
+            :return: SQL query string to identify outlier points based on median LCD.
+            :rtype: str
+            """
+
+            if date_vector.max() < 730:
+                return ""
+
+            first_index = npwhere(date_vector >= date_vector - 730)[0][0]
+            column_select = ", ".join(date_names[first_index:])
+
+            return f"""
+            with underthreshold as (
+                SELECT 
+                    uid, 
+                    patch_id,
+                    ARRAY[{column_select}] as disp_ts 
+                FROM {table_name}
+                WHERE uid NOT IN (SELECT uid FROM outliers)
+                AND patch_id IS NOT NULL
+            ),
+            sel_ts as (
+                SELECT 
+                    uid, 
+                    med_disp_ts_lcp[{first_index}:] as med,
+                    med_std_disp_ts_lcp[{first_index}:] as std,
+                FROM patches
+                WHERE patches.uid IN (SELECT uid FROM underthreshold)  
+            ),
+            joined as (
+                SELECT * from underthreshold
+                JOIN sel_ts on sel_ts.uid = underthreshold.patch_id
+            ),
+            ald_points as (
+                SELECT
+                    uid,
+                    patch_id,
+                    list_min(
+                        list_apply(
+                            array_zip(disp_ts, med, std),
+                            x -> abs(x[1]-x[2]) > x[3]
+                        )
+                    ) as all_greater
+                FROM joined
+                WHERE all_greater = true
+            )
+            INSERT INTO outliers (uid, patch_id)
+            SELECT uid, patch_id FROM ald_points
             """
 
         @staticmethod
@@ -810,34 +1006,70 @@ class Pipeline:
             """
 
         def outlier_ts_patch(date_fields: list[str], table_name: str = "pspoint"):
+            """Get outlier displacement time series for patches."""
+
             date_fields_str = "[" + ", ".join(date_fields) + "]"
+            # return f"""
+            # ALTER TABLE patches ADD COLUMN outlier_disp_ts DOUBLE[];
+            # UPDATE patches
+            # SET outlier_disp_ts = subquery.disp_ts
+            # FROM (
+            #     SELECT
+            #         p.patch_id,
+            #         {date_fields_str} AS disp_ts
+            #     FROM {table_name} AS p
+            #     JOIN patches AS pa
+            #     ON p.uid = pa.outlier_uid
+            #     WHERE p.patch_id IS NOT NULL
+            #     -- GROUP BY p.patch_id
+            # ) AS subquery
+            # WHERE patches.uid = subquery.patch_id;
+            # """
             return f"""
-            ALTER TABLE patches ADD COLUMN outlier_disp_ts DOUBLE[];
-            UPDATE patches
-            SET outlier_disp_ts = subquery.disp_ts
+            ALTER TABLE outliers ADD COLUMN disp_ts DOUBLE[];
+            UPDATE outliers
+            SET disp_ts = subquery.disp_ts
             FROM (
                 SELECT 
-                    p.patch_id,
+                    p.uid,
                     {date_fields_str} AS disp_ts
                 FROM {table_name} AS p
-                JOIN patches AS pa
-                ON p.uid = pa.outlier_uid
-                WHERE p.patch_id IS NOT NULL
-                -- GROUP BY p.patch_id
+                WHERE p.uid IN (SELECT uid FROM outliers)
             ) AS subquery
-            WHERE patches.uid = subquery.patch_id;
+            WHERE outliers.uid = subquery.uid;
             """
 
         @staticmethod
         def outlier_rel_ts_patch():
+            # return f"""
+            # ALTER TABLE patches ADD COLUMN outlier_rel_ts DOUBLE[];
+            # UPDATE patches
+            # SET outlier_rel_ts = list_transform(
+            #     outlier_disp_ts,
+            #     (value, idx) -> value - list_element(lcp_disp_ts, idx)
+            # )
+            # WHERE outlier_disp_ts IS NOT NULL AND lcp_disp_ts IS NOT NULL;
+            # """
             return f"""
-            ALTER TABLE patches ADD COLUMN outlier_rel_ts DOUBLE[];
-            UPDATE patches
-            SET outlier_rel_ts = list_transform(
-                outlier_disp_ts, 
-                (value, idx) -> value - list_element(lcp_disp_ts, idx)
+            ALTER TABLE outliers ADD COLUMN rel_ts DOUBLE[];
+            with p_lcp as (
+                SELECT uid, lcp_disp_ts
+                FROM patches
+                WHERE lcp_uid IS NOT NULL
+            ),
+            p_out as (
+                SELECT o.uid, o.patch_id, o.disp_ts, p_lcp.lcp_disp_ts
+                FROM outliers AS o
+                JOIN p_lcp
+                ON o.patch_id = p_lcp.uid
             )
-            WHERE outlier_disp_ts IS NOT NULL AND lcp_disp_ts IS NOT NULL;          
+            UPDATE outliers
+            SET rel_ts = list_transform(
+                p_out.disp_ts, 
+                (value, idx) -> value - list_element(p_out.lcp_disp_ts, idx)
+            )
+            FROM p_out
+            WHERE outliers.uid = p_out.uid
             """
 
     class Visualisation:
