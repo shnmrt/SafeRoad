@@ -81,6 +81,11 @@ class TestSafeRoad(unittest.TestCase):
         except Exception as e:
             self.fail(f"generate_report raised an exception: {e}")
 
+        finally:
+            # Clean up the test file
+            if os.path.exists("./test_report2.pdf"):
+                os.remove("./test_report2.pdf")
+
     def test_scaling_factor(self):
         # Test the _scaling_factor_ property
         self.ps_data.unit = "m"
@@ -158,6 +163,11 @@ class TestSafeRoad(unittest.TestCase):
             self.saferoad.generate_report("./custom_report_output.pdf")
         except Exception as e:
             self.fail(f"generate_report with custom output raised an exception: {e}")
+
+        finally:
+            # Clean up the test file
+            if os.path.exists("./custom_report_output.pdf"):
+                os.remove("./custom_report_output.pdf")
 
         def test_render_ts_plots_workers(self):
             """Test that time series plots are correctly rendered in the report."""
