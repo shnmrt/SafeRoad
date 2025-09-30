@@ -849,6 +849,8 @@ class Pipeline:
                 FROM {table_name}
                 WHERE ABS(avg_velocity_lcp) > 5 / {scaling_factor}
                 AND patch_id IS NOT NULL;
+            ALTER TABLE outliers ADD COLUMN criteria VARCHAR;
+            UPDATE outliers SET criteria = 'threshold';
             """
 
         @staticmethod
@@ -914,8 +916,8 @@ class Pipeline:
                 FROM joined
                 WHERE all_greater = true
             )
-            INSERT INTO outliers (uid, patch_id)
-            SELECT uid, patch_id FROM ald_points
+            INSERT INTO outliers (uid, patch_id, criteria)
+            SELECT uid, patch_id, 'ald' FROM ald_points
             """
 
         @staticmethod
@@ -968,7 +970,7 @@ class Pipeline:
                 SELECT * from underthreshold
                 JOIN sel_ts on sel_ts.uid = underthreshold.patch_id
             ),
-            ald_points as (
+            med_points as (
                 SELECT
                     uid,
                     patch_id,
@@ -981,8 +983,8 @@ class Pipeline:
                 FROM joined
                 WHERE all_greater = true
             )
-            INSERT INTO outliers (uid, patch_id)
-            SELECT uid, patch_id FROM ald_points
+            INSERT INTO outliers (uid, patch_id, criteria)
+            SELECT uid, patch_id, 'med' FROM med_points
             """
 
         @staticmethod
@@ -1151,12 +1153,7 @@ class Pipeline:
                 ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom,
                 ABS(avg_velocity_lcp) * {scaling_factor} AS velocity,
             FROM pspoint
-            WHERE uid IN (
-                SELECT
-                    outlier_uid,
-                FROM patches
-                WHERE outlier_uid IS NOT NULL
-            )
+            WHERE uid IN (SELECT uid FROM outliers)
             ORDER BY velocity ASC;
             """
 
@@ -1232,32 +1229,72 @@ class Pipeline:
             ORDER BY velocity ASC;
             """
 
+        # @staticmethod
+        # def get_outlier_zoom(source_crs: str) -> str:
+        #     """Get outlier points for zoomed-in view.
+
+        #     This method generates an SQL query to retrieve outlier points based on their
+        #     average velocity relative to local control points (LCPs). Points with an absolute
+        #     average LCP velocity are retrieved, transforming the geometries from a source CRS
+        #     to a target projection defined in the Visualisation class.
+
+        #     :param source_crs: The source coordinate reference system of the geometries.
+        #     :type source_crs: str
+        #     :return: SQL query string to get the outlier points.
+        #     :rtype: str
+        #     """
+        #     return f"""
+        #     SELECT
+        #         ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom,
+        #         ABS(avg_velocity_lcp) AS velocity
+        #     FROM pspoint
+        #     WHERE uid IN (SELECT uid FROM outliers)
+        #     ORDER BY velocity DESC;
+        #     """
+
         @staticmethod
-        def get_outlier_zoom(source_crs: str) -> str:
-            """Get outlier points for zoomed-in view.
+        def get_center(patch_id: float, source_crs: str) -> str:
+            """Get the center point of the outlier within a specific patch.
 
-            This method generates an SQL query to retrieve outlier points based on their
-            average velocity relative to local control points (LCPs). Points with an absolute
-            average LCP velocity are retrieved, transforming the geometries from a source CRS
-            to a target projection defined in the Visualisation class.
+            This method generates an SQL query to retrieve the center point of the outlier
+            within a specific patch, transforming the geometry from a source CRS to a target
+            projection defined in the Visualisation class.
 
+            :param patch_id: The unique identifier of the patch.
+            :type patch_id: float
             :param source_crs: The source coordinate reference system of the geometries.
             :type source_crs: str
-            :return: SQL query string to get the outlier points.
-            :rtype: str
+            :return: SQL query string to get the center point of the outlier within the specified patch.
             """
             return f"""
             SELECT
-                ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom,
-                ABS(avg_velocity_lcp) AS velocity
+                ST_AsWKB(ST_TRANSFORM(ST_Centroid(geom), '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
             FROM pspoint
             WHERE uid IN (
-                SELECT
-                    outlier_uid,
-                FROM patches
-                WHERE outlier_uid IS NOT NULL
+                SELECT uid
+                FROM outliers
+                WHERE patch_id = {patch_id}
             )
-            ORDER BY velocity DESC;
+            """
+
+        @staticmethod
+        def get_patch_center(patch_id: float, source_crs: str) -> str:
+            """Get the center point of a specific patch.
+
+            This method generates an SQL query to retrieve the center point of a specific
+            patch, transforming the geometry from a source CRS to a target projection defined in the Visualisation class.
+
+            :param patch_id: The unique identifier of the patch.
+            :type patch_id: float
+            :param source_crs: The source coordinate reference system of the geometries.
+            :type source_crs: str
+            :return: SQL query string to get the center point of the specified patch.
+            """
+            return f"""
+            SELECT
+                ST_AsWKB(ST_TRANSFORM(ST_Centroid(geom), '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
+            FROM patches
+            WHERE uid = {patch_id}
             """
 
         @staticmethod
@@ -1280,52 +1317,7 @@ class Pipeline:
             SELECT
                 ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom,
             FROM {table_name}
-            WHERE patch_id = {patch_id}            
-            """
-
-        @staticmethod
-        def get_center(patch_id: float, source_crs: str) -> str:
-            """Get the center point of the outlier within a specific patch.
-
-            This method generates an SQL query to retrieve the center point of the outlier
-            within a specific patch, transforming the geometry from a source CRS to a target
-            projection defined in the Visualisation class.
-
-            :param patch_id: The unique identifier of the patch.
-            :type patch_id: float
-            :param source_crs: The source coordinate reference system of the geometries.
-            :type source_crs: str
-            :return: SQL query string to get the center point of the outlier within the specified patch.
-            """
-            return f"""
-            SELECT 
-                ST_AsWKB(ST_TRANSFORM(ST_Centroid(geom), '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
-            FROM pspoint
-            WHERE uid = (
-                SELECT outlier_uid 
-                FROM patches
-                WHERE uid = {patch_id}
-            )
-            """
-
-        def get_patch_center(patch_id: float, source_crs: str) -> str:
-            """Get the center point of a specific patch.
-
-            This method generates an SQL query to retrieve the center point of a specific
-            patch,
-            transforming the geometry from a source CRS to a target projection defined in the Visualisation class.
-
-            :param patch_id: The unique identifier of the patch.
-            :type patch_id: float
-            :param source_crs: The source coordinate reference system of the geometries.
-            :type source_crs: str
-            :return: SQL query string to get the center point of the specified patch.
-            """
-            return f"""
-            SELECT 
-                ST_AsWKB(ST_TRANSFORM(ST_Centroid(geom), '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
-            FROM patches
-            WHERE uid = {patch_id}
+            WHERE patch_id = {patch_id}
             """
 
         @staticmethod
@@ -1343,39 +1335,39 @@ class Pipeline:
             :return: SQL query string to get the LCP within the specified patch.
             """
             return f"""
-            SELECT 
+            SELECT
                 ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
             FROM pspoint
             WHERE uid = (
-                SELECT lcp_uid 
+                SELECT lcp_uid
                 FROM patches
                 WHERE uid = {patch_id}
             )
             """
 
-        @staticmethod
-        def get_outlier_point(patch_id: float, source_crs: str) -> str:
-            """Get the outlier point within a specific patch.
+        # @staticmethod
+        # def get_outlier_point(patch_id: float, source_crs: str) -> str:
+        #     """Get the outlier point within a specific patch.
 
-            This method generates an SQL query to retrieve the outlier point within a specific patch,
-            transforming the geometry from a source CRS to a target projection defined in the Visualisation class.
+        #     This method generates an SQL query to retrieve the outlier point within a specific patch,
+        #     transforming the geometry from a source CRS to a target projection defined in the Visualisation class.
 
-            :param patch_id: The unique identifier of the patch.
-            :type patch_id: float
-            :param source_crs: The source coordinate reference system of the geometries.
-            :type source_crs: str
-            :return: SQL query string to get the outlier point within the specified patch.
-            """
-            return f"""
-            SELECT 
-                ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
-            FROM pspoint
-            WHERE uid = (
-                SELECT outlier_uid 
-                FROM patches
-                WHERE uid = {patch_id}
-            )
-            """
+        #     :param patch_id: The unique identifier of the patch.
+        #     :type patch_id: float
+        #     :param source_crs: The source coordinate reference system of the geometries.
+        #     :type source_crs: str
+        #     :return: SQL query string to get the outlier point within the specified patch.
+        #     """
+        #     return f"""
+        #     SELECT
+        #         ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
+        #     FROM pspoint
+        #     WHERE uid = (
+        #         SELECT outlier_uid
+        #         FROM patches
+        #         WHERE uid = {patch_id}
+        #     )
+        #     """
 
         @staticmethod
         def get_cum_disp_graph(patch_id: float, scaling_factor: float) -> str:
@@ -1392,8 +1384,8 @@ class Pipeline:
             """
             return f"""
             SELECT
-                list_transform(outlier_disp_ts, x -> x * {scaling_factor})
-            FROM patches
+                list_transform(disp_ts, x -> x * {scaling_factor})
+            FROM outliers
             WHERE uid = {patch_id}
             """
 
@@ -1435,6 +1427,26 @@ class Pipeline:
                 list_transform(std_disp_ts_gcp, x -> x * {scaling_factor})
             FROM patches
             WHERE uid = {patch_id}
+            """
+
+        def get_outlier_rel_ts_graph(patch_id: float, scaling_factor: float) -> str:
+            # TODO: check the logic here
+            """Get outlier relative displacement time series.
+
+            This method generates an SQL query to retrieve the outlier relative displacement
+            time series for a specific patch, scaling the displacement values by a specified factor.
+
+            :param patch_id: The unique identifier of the patch.
+            :type patch_id: float
+            :param scaling_factor: The factor to scale the displacement values.
+            :type scaling_factor: float
+            :return: SQL query string to get the outlier relative displacement time series for the specified patch.
+            """
+            return f"""
+            SELECT
+                list_transform(rel_ts, x -> x * {scaling_factor})
+            FROM outliers
+            WHERE patch_id = {patch_id}
             """
 
         @staticmethod
@@ -1479,9 +1491,11 @@ class Pipeline:
         @staticmethod
         def get_std_disp_lcp_graph(patch_id: float, scaling_factor: float) -> str:
             """Get standard deviation of displacement time series based on local control points (LCPs).
+
             This method generates an SQL query to retrieve the standard deviation of displacement
             time series based on local control points (LCPs) for a specific patch, scaling the
             displacement values by a specified factor.
+
             :param patch_id: The unique identifier of the patch.
             :type patch_id: float
             :param scaling_factor: The factor to scale the displacement values.
@@ -1491,23 +1505,6 @@ class Pipeline:
             return f"""
             SELECT
                 list_transform(std_disp_ts_lcp, x -> x * {scaling_factor})
-            FROM patches
-            WHERE uid = {patch_id}
-            """
-
-        def get_outlier_rel_ts_graph(patch_id: float, scaling_factor: float) -> str:
-            """Get outlier relative displacement time series.
-            This method generates an SQL query to retrieve the outlier relative displacement
-            time series for a specific patch, scaling the displacement values by a specified factor.
-            :param patch_id: The unique identifier of the patch.
-            :type patch_id: float
-            :param scaling_factor: The factor to scale the displacement values.
-            :type scaling_factor: float
-            :return: SQL query string to get the outlier relative displacement time series for the specified patch.
-            """
-            return f"""
-            SELECT
-                list_transform(outlier_rel_ts, x -> x * {scaling_factor})
             FROM patches
             WHERE uid = {patch_id}
             """
@@ -1523,8 +1520,7 @@ class Pipeline:
             :rtype: str
             """
             return """
-            SELECT uid 
-            FROM patches
-            WHERE outlier_uid IS NOT NULL
-            ORDER BY uid ASC;
+            SELECT patch_id
+            FROM outliers
+            GROUP BY patch_id;
             """
