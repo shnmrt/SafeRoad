@@ -36,17 +36,17 @@ class Pipeline:
 
             Method validates the provided file path and determines if existing
             and determines the appropriate loading method based on the file type.
-
+            It generates an SQL query to create or replace a table in the database
+            with the contents of the file. The method supports CSV files and other
+            GIS vector files, using different loading methods for each type.
 
             :param file_path: The path to the file to be loaded.
             :type file_path: str
             :param table_name: The name of the table to create or replace in the database.
             :type table_name: str
-
             :raises AssertionError: If the file does not exist.
             :return: SQL query string to create or replace the table with the file data.
             :rtype: str
-
             """
 
             assert Path(file_path).exists(), f"File {file_path} does not exist."
@@ -109,8 +109,6 @@ class Pipeline:
 
             :param segment_length: The length of each segment in meters.
             :type segment_length: float
-            :param computational_crs: The coordinate reference system to use for calculations.
-            :type computational_crs: str
             :param table_name: The name of the table containing the lines, default is "dissolved".
             :type table_name: str
             :return: SQL query string to create or replace the segments table.
@@ -559,7 +557,8 @@ class Pipeline:
         def calc_lcp_velocity() -> str:
             """Calculate LCP velocity for patches.
 
-            This method generates an SQL query to calculate the velocity of the linear control point (LCP) for each patch by retrieving the average velocity of the point identified as the LCP.
+            This method generates an SQL query to calculate the velocity of the linear control point (LCP)
+            for each patch by retrieving the average velocity of the point identified as the LCP.
 
             :return: SQL query string to calculate LCP velocity for patches.
             :rtype: str
@@ -855,7 +854,7 @@ class Pipeline:
 
         @staticmethod
         def calc_outliers_avg_lcd(
-            table_name: str = "pspoint", date_vector=[int], date_names=[str]
+            table_name: str = "pspoint", date_vector=list[int], date_names=list[str]
         ) -> str:
             """Calculate outliers based on average local control displacement (LCD).
 
@@ -922,7 +921,7 @@ class Pipeline:
 
         @staticmethod
         def calc_outliers_med_lcd(
-            table_name: str = "pspoint", date_vector=[int], date_names=[str]
+            table_name: str = "pspoint", date_vector=list[int], date_names=list[str]
         ) -> str:
             """Calculate outliers based on median local control displacement (LCD).
 
@@ -989,6 +988,19 @@ class Pipeline:
 
         @staticmethod
         def lcp_ts_patch(date_fields: list[str], table_name: str = "pspoint"):
+            """Get Local Control Point's displacement time series for patches.
+
+            This method generates an SQL query to retrieve the displacement time series
+            of the local control point (LCP) for each patch based on specified date fields.
+
+            :param date_fields: List of column names representing displacement values at different dates.
+            :type date_fields: list[str]
+            :param table_name: The name of the table containing the points, default is "pspoint".
+            :type table_name: str
+            :return: SQL query string to get LCP displacement time series for patches.
+            :rtype: str
+
+            """
             date_fields_str = "[" + ", ".join(date_fields) + "]"
             return f"""
             ALTER TABLE patches ADD COLUMN lcp_disp_ts DOUBLE[];
@@ -1008,25 +1020,20 @@ class Pipeline:
             """
 
         def outlier_ts_patch(date_fields: list[str], table_name: str = "pspoint"):
-            """Get outlier displacement time series for patches."""
+            """Get outlier displacement time series for patches.
+
+            This method generates an SQL query to retrieve the displacement time series
+            of outlier points based on specified date fields.
+
+            :param date_fields: List of column names representing displacement values at different dates.
+            :type date_fields: list[str]
+            :param table_name: The name of the table containing the points, default is "pspoint".
+            :type table_name: str
+            :return: SQL query string to get outlier displacement time series for patches.
+            :rtype: str
+            """
 
             date_fields_str = "[" + ", ".join(date_fields) + "]"
-            # return f"""
-            # ALTER TABLE patches ADD COLUMN outlier_disp_ts DOUBLE[];
-            # UPDATE patches
-            # SET outlier_disp_ts = subquery.disp_ts
-            # FROM (
-            #     SELECT
-            #         p.patch_id,
-            #         {date_fields_str} AS disp_ts
-            #     FROM {table_name} AS p
-            #     JOIN patches AS pa
-            #     ON p.uid = pa.outlier_uid
-            #     WHERE p.patch_id IS NOT NULL
-            #     -- GROUP BY p.patch_id
-            # ) AS subquery
-            # WHERE patches.uid = subquery.patch_id;
-            # """
             return f"""
             ALTER TABLE outliers ADD COLUMN disp_ts DOUBLE[];
             UPDATE outliers
@@ -1043,15 +1050,18 @@ class Pipeline:
 
         @staticmethod
         def outlier_rel_ts_patch():
-            # return f"""
-            # ALTER TABLE patches ADD COLUMN outlier_rel_ts DOUBLE[];
-            # UPDATE patches
-            # SET outlier_rel_ts = list_transform(
-            #     outlier_disp_ts,
-            #     (value, idx) -> value - list_element(lcp_disp_ts, idx)
-            # )
-            # WHERE outlier_disp_ts IS NOT NULL AND lcp_disp_ts IS NOT NULL;
-            # """
+            """Calculate outlier displacement time series relative to LCP for patches.
+
+            This method generates an SQL query to calculate the displacement time series
+            of outlier points relative to the displacement time series of their associated
+            local control points (LCPs). It assumes that the outliers table contains a
+            geometry column, a displacement time series column, and a patch ID column,
+            and that the patches table contains a geometry column, a unique identifier
+            for each patch, and a displacement time series column for the LCP.
+
+            :return: SQL query string to calculate outlier displacement time series relative to LCP for patches.
+            :rtype: str
+            """
             return f"""
             ALTER TABLE outliers ADD COLUMN rel_ts DOUBLE[];
             with p_lcp as (
@@ -1143,8 +1153,8 @@ class Pipeline:
 
             :param source_crs: The source coordinate reference system of the geometries.
             :type source_crs: str
-            :param unit: The measurement unit for velocity ("m", "cm", or "mm").
-            :type unit: str
+            :param scaling_factor: The factor to scale the velocity threshold based on the unit.
+            :type scaling_factor: float
             :return: SQL query string to identify outlier points.
             :rtype: str
             """
@@ -1229,39 +1239,16 @@ class Pipeline:
             ORDER BY velocity ASC;
             """
 
-        # @staticmethod
-        # def get_outlier_zoom(source_crs: str) -> str:
-        #     """Get outlier points for zoomed-in view.
-
-        #     This method generates an SQL query to retrieve outlier points based on their
-        #     average velocity relative to local control points (LCPs). Points with an absolute
-        #     average LCP velocity are retrieved, transforming the geometries from a source CRS
-        #     to a target projection defined in the Visualisation class.
-
-        #     :param source_crs: The source coordinate reference system of the geometries.
-        #     :type source_crs: str
-        #     :return: SQL query string to get the outlier points.
-        #     :rtype: str
-        #     """
-        #     return f"""
-        #     SELECT
-        #         ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom,
-        #         ABS(avg_velocity_lcp) AS velocity
-        #     FROM pspoint
-        #     WHERE uid IN (SELECT uid FROM outliers)
-        #     ORDER BY velocity DESC;
-        #     """
-
         @staticmethod
-        def get_center(patch_id: float, source_crs: str) -> str:
+        def get_center(point_uid: float, source_crs: str) -> str:
             """Get the center point of the outlier within a specific patch.
 
             This method generates an SQL query to retrieve the center point of the outlier
             within a specific patch, transforming the geometry from a source CRS to a target
             projection defined in the Visualisation class.
 
-            :param patch_id: The unique identifier of the patch.
-            :type patch_id: float
+            :param point_uid: The unique identifier of the outlier point.
+            :type point_uid: float
             :param source_crs: The source coordinate reference system of the geometries.
             :type source_crs: str
             :return: SQL query string to get the center point of the outlier within the specified patch.
@@ -1270,11 +1257,7 @@ class Pipeline:
             SELECT
                 ST_AsWKB(ST_TRANSFORM(ST_Centroid(geom), '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
             FROM pspoint
-            WHERE uid IN (
-                SELECT uid
-                FROM outliers
-                WHERE patch_id = {patch_id}
-            )
+            WHERE uid = {point_uid}
             """
 
         @staticmethod
@@ -1300,6 +1283,7 @@ class Pipeline:
         @staticmethod
         def get_ps_points(patch_id: float, source_crs: str, table_name: str) -> str:
             """Get points within a specific patch.
+
             This method generates an SQL query to retrieve points within a specific patch,
             transforming the geometries from a source CRS to a target projection defined
             in the Visualisation class.
@@ -1345,39 +1329,40 @@ class Pipeline:
             )
             """
 
-        # @staticmethod
-        # def get_outlier_point(patch_id: float, source_crs: str) -> str:
-        #     """Get the outlier point within a specific patch.
+        @staticmethod
+        def get_outlier_points(patch_id: float, source_crs: str) -> str:
+            """Get the outlier points within a specific patch.
 
-        #     This method generates an SQL query to retrieve the outlier point within a specific patch,
-        #     transforming the geometry from a source CRS to a target projection defined in the Visualisation class.
+            This method generates an SQL query to retrieve the outlier point within a specific patch,
+            transforming the geometry from a source CRS to a target projection defined in the Visualisation class.
 
-        #     :param patch_id: The unique identifier of the patch.
-        #     :type patch_id: float
-        #     :param source_crs: The source coordinate reference system of the geometries.
-        #     :type source_crs: str
-        #     :return: SQL query string to get the outlier point within the specified patch.
-        #     """
-        #     return f"""
-        #     SELECT
-        #         ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
-        #     FROM pspoint
-        #     WHERE uid = (
-        #         SELECT outlier_uid
-        #         FROM patches
-        #         WHERE uid = {patch_id}
-        #     )
-        #     """
+            :param patch_id: The unique identifier of the patch.
+            :type patch_id: float
+            :param source_crs: The source coordinate reference system of the geometries.
+            :type source_crs: str
+            :return: SQL query string to get the outlier point within the specified patch.
+            """
+            return f"""
+            SELECT
+                uid,
+                ST_AsWKB(ST_TRANSFORM(geom, '{source_crs}', '{Pipeline.Visualisation.projection}', always_xy := true)) AS geom
+            FROM pspoint
+            WHERE uid IN (
+                SELECT uid
+                FROM outliers
+                WHERE patch_id = {patch_id}
+            )
+            """
 
         @staticmethod
-        def get_cum_disp_graph(patch_id: float, scaling_factor: float) -> str:
+        def get_cum_disp_graph(outlier_id: float, scaling_factor: float) -> str:
             """Get outlier displacement time series.
 
             This method generates an SQL query to retrieve the outlier displacement time series
             for a specific patch, scaling the displacement values by a specified factor.
 
-            :param patch_id: The unique identifier of the patch.
-            :type patch_id: float
+            :param outlier_id: The unique identifier of the patch.
+            :type outlier_id: float
             :param scaling_factor: The factor to scale the displacement values.
             :type scaling_factor: float
             :return: SQL query string to get the outlier displacement time series for the specified patch.
@@ -1386,7 +1371,7 @@ class Pipeline:
             SELECT
                 list_transform(disp_ts, x -> x * {scaling_factor})
             FROM outliers
-            WHERE uid = {patch_id}
+            WHERE uid = {outlier_id}
             """
 
         @staticmethod
@@ -1429,15 +1414,15 @@ class Pipeline:
             WHERE uid = {patch_id}
             """
 
-        def get_outlier_rel_ts_graph(patch_id: float, scaling_factor: float) -> str:
+        def get_outlier_rel_ts_graph(outlier_id: float, scaling_factor: float) -> str:
             # TODO: check the logic here
             """Get outlier relative displacement time series.
 
             This method generates an SQL query to retrieve the outlier relative displacement
             time series for a specific patch, scaling the displacement values by a specified factor.
 
-            :param patch_id: The unique identifier of the patch.
-            :type patch_id: float
+            :param outlier_id: The unique identifier of the patch.
+            :type outlier_id: float
             :param scaling_factor: The factor to scale the displacement values.
             :type scaling_factor: float
             :return: SQL query string to get the outlier relative displacement time series for the specified patch.
@@ -1446,7 +1431,7 @@ class Pipeline:
             SELECT
                 list_transform(rel_ts, x -> x * {scaling_factor})
             FROM outliers
-            WHERE patch_id = {patch_id}
+            WHERE uid = {outlier_id}
             """
 
         @staticmethod
@@ -1472,9 +1457,11 @@ class Pipeline:
         @staticmethod
         def get_avg_disp_lcp_graph(patch_id: float, scaling_factor: float) -> str:
             """Get average displacement time series based on local control points (LCPs).
+
             This method generates an SQL query to retrieve the average displacement time series
             based on local control points (LCPs) for a specific patch, scaling the displacement
             values by a specified factor.
+
             :param patch_id: The unique identifier of the patch.
             :type patch_id: float
             :param scaling_factor: The factor to scale the displacement values.
