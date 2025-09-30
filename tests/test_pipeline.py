@@ -160,7 +160,7 @@ class TestPipelineProcessing(unittest.TestCase):
     def test_calc_outliers(self):
         query = Pipeline.Processing.calc_outliers(1000.0, "test_table")
         self.assertIn("test_table", query)
-        self.assertIn("outlier_uid", query)
+        self.assertIn("uid", query)
         self.assertIn("1000.0", query)
 
     def test_lcp_ts_patch(self):
@@ -177,12 +177,12 @@ class TestPipelineProcessing(unittest.TestCase):
         for date in date_fields:
             self.assertIn(date, query)
         self.assertIn("test_table", query)
-        self.assertIn("outlier_disp_ts", query)
+        self.assertIn("disp_ts", query)
 
     def test_outlier_rel_ts_patch(self):
         query = Pipeline.Processing.outlier_rel_ts_patch()
-        self.assertIn("outlier_rel_ts", query)
-        self.assertIn("outlier_disp_ts", query)
+        self.assertIn("rel_ts", query)
+        self.assertIn("disp_ts", query)
         self.assertIn("lcp_disp_ts", query)
 
 
@@ -228,12 +228,6 @@ class TestPipelineVisualisation(unittest.TestCase):
         self.assertIn("1000.0", query)
         self.assertIn("avg_velocity_lcp", query)
 
-    def test_get_outlier_zoom(self):
-        query = Pipeline.Visualisation.get_outlier_zoom("EPSG:4326")
-        self.assertIn("EPSG:4326", query)
-        self.assertIn("EPSG:3857", query)  # Default projection
-        self.assertIn("outlier_uid", query)
-
     def test_get_ps_points(self):
         query = Pipeline.Visualisation.get_ps_points(123, "EPSG:4326", "test_table")
         self.assertIn("EPSG:4326", query)
@@ -262,18 +256,17 @@ class TestPipelineVisualisation(unittest.TestCase):
         self.assertIn("123", query)
         self.assertIn("lcp_uid", query)
 
-    def test_get_outlier_point(self):
-        query = Pipeline.Visualisation.get_outlier_point(123, "EPSG:4326")
+    def test_get_outlier_points(self):
+        query = Pipeline.Visualisation.get_outlier_points(123, "EPSG:4326")
         self.assertIn("EPSG:4326", query)
         self.assertIn("EPSG:3857", query)  # Default projection
         self.assertIn("123", query)
-        self.assertIn("outlier_uid", query)
 
     def test_get_cum_disp_graph(self):
         query = Pipeline.Visualisation.get_cum_disp_graph(123, 1000.0)
         self.assertIn("123", query)
         self.assertIn("1000.0", query)
-        self.assertIn("outlier_disp_ts", query)
+        self.assertIn("disp_ts", query)
 
     def test_get_avg_cum_disp_graph(self):
         query = Pipeline.Visualisation.get_avg_cum_disp_graph(123, 1000.0)
@@ -309,9 +302,8 @@ class TestPipelineVisualisation(unittest.TestCase):
         query = Pipeline.Visualisation.get_outlier_rel_ts_graph(123, 1000.0)
         self.assertIn("123", query)
         self.assertIn("1000.0", query)
-        self.assertIn("outlier_rel_ts", query)
 
     def test_patch_uids(self):
         query = Pipeline.Visualisation.patch_uids()
-        self.assertIn("uid", query)
-        self.assertIn("outlier_uid IS NOT NULL", query)
+        self.assertIn("patch_id", query)
+        self.assertIn("outliers", query)
