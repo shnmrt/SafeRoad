@@ -63,7 +63,7 @@ class TestExtractDates(unittest.TestCase):
         ]
         expected_vector = [0, 1, 9, 19]
         result_vector = time_vector(dates)
-        self.assertEqual(result_vector, expected_vector)
+        self.assertEqual(list(result_vector), expected_vector)
 
     def test_time_vector_single_date(self):
         dates = [datetime(2022, 1, 1)]
