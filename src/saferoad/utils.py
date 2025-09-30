@@ -2,6 +2,7 @@ import re
 import time
 from datetime import datetime
 from dateutil import parser as dsparser
+from numpy import array as nparray
 
 
 def extract_dates(column_names: list[str]) -> tuple[list[str], list[datetime]]:
@@ -29,7 +30,7 @@ def extract_dates(column_names: list[str]) -> tuple[list[str], list[datetime]]:
     return nameFields, dateFields
 
 
-def time_vector(dates: list[datetime]) -> list[float]:
+def time_vector(dates: list[datetime]) -> nparray:
     """Generates a time vector in days from a list of datetime objects.
 
     :param dates: List of datetime objects.
@@ -37,7 +38,7 @@ def time_vector(dates: list[datetime]) -> list[float]:
     :return: List of time differences in days from the first date.
     :rtype: list[float]
     """
-    return [(i - dates[0]).days for i in dates]
+    return nparray([(i - dates[0]).days for i in dates])
 
 
 class Timer(object):
