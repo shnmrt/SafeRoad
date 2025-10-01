@@ -337,9 +337,9 @@ class Plotter:
             :return: Tuple containing color and label.
             :rtype: tuple[str, str]
             """
-            if value <= 7:
+            if 5 <= value <= 7:
                 return "yellow", "5<|v|<7 mm/yr"
-            elif value <= 9:
+            elif 7 < value <= 9:
                 return "orange", "7<|v|<9 mm/yr"
             else:
                 return "red", "9<|v|<12 mm/yr"
@@ -695,7 +695,7 @@ class Plotter:
                 x,
                 [y_avg[i] - y_std[i] for i in range(len(y_avg))],
                 [y_avg[i] + y_std[i] for i in range(len(y_avg))],
-                color="lightgrey",
+                color="whitesmoke",
                 alpha=0.5,
                 # label="±1 Std Dev",
             )
