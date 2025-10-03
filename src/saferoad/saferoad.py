@@ -80,3 +80,32 @@ class Road:
         assert isinstance(self.filepath, str), "File path must be a string."
         assert self.name, "Name must be provided."
         assert isinstance(self.name, str), "Name must be a string."
+
+
+class SafeRoad:
+    """
+    A class to perform road deformation analysis using MT-InSAR data.
+
+    :param road: An instance of the Road class containing road data information.
+    :type road: Road
+    :param ps_data: An instance of the PsData class containing MT-InSAR data information.
+    :type ps_data: PsData
+    :param computational_crs: A string representing the EPSG code for the computational CRS.
+    :type computational_crs: str
+    """
+
+    def __init__(self, road: Road, ps_data: PsData, computational_crs: str):
+
+        assert isinstance(road, Road), "road must be an instance of Road class"
+        assert isinstance(
+            ps_data, PsData
+        ), "ps_data must be an instance of PsData class"
+        assert isinstance(
+            computational_crs, str
+        ), "computational_crs must be a string representing the EPSG code"
+
+        self.ps_data = ps_data
+        self.road_data = road
+        self.database = DataBase()
+        # self.scaling_factor = self._set_scaling_factor_()
+        self.computational_crs = computational_crs
