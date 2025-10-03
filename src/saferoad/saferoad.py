@@ -109,3 +109,10 @@ class SafeRoad:
         self.database = DataBase()
         # self.scaling_factor = self._set_scaling_factor_()
         self.computational_crs = computational_crs
+
+    @property
+    def _scaling_factor_(self):
+        # determine the scaling factor based on the unit
+        units = ["m", "cm", "mm"]
+        sf = [1000, 10, 1]
+        return sf[units.index(self.ps_data.unit)]
