@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pytnon -c "import duckdb; duckdb.install_extension('spatial')"
+          python -c "import duckdb; duckdb.install_extension('spatial')"
           pip install coverage
 
       - name: Run unittests with coverage
