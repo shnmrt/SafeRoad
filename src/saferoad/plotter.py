@@ -448,6 +448,7 @@ class Plotter:
             axs["E"].set_ylabel("[mm]", fontsize=8, labelpad=2)
             self.fig = fig
             self.axs = [axs["A"], axs["B"], axs["C"], axs["D"], axs["E"]]
+            plt.close()
 
         def plot_basemap_outlier(self, center: tuple[float, float]):
             """
