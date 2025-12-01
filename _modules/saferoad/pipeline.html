@@ -1,0 +1,1761 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saferoad.pipeline &mdash; saferoad 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            saferoad
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">saferoad</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">saferoad</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">saferoad.pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for saferoad.pipeline</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">where</span> <span class="k">as</span> <span class="n">npwhere</span>
+
+
+<div class="viewcode-block" id="Pipeline">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Pipeline</span><span class="p">:</span>
+<div class="viewcode-block" id="Pipeline.Processing">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Processing</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Processing class for processing road data.</span>
+
+<span class="sd">        This class provides methods to load files into a database, dissolve features,</span>
+<span class="sd">        split lines into segments, generate patches, and save tables as GeoJSON files.</span>
+<span class="sd">        It assumes that the database connection is already established and that the</span>
+<span class="sd">        necessary SQL functions for spatial operations are available.</span>
+<span class="sd">        The methods in this class generate SQL queries that can be executed against</span>
+<span class="sd">        a spatial database, such as DuckDB.</span>
+
+<span class="sd">        The class does not handle database connections or query execution directly;</span>
+<span class="sd">        it only generates the SQL queries as strings.</span>
+<span class="sd">        The methods are static and can be called without instantiating the class.</span>
+<span class="sd">        The class is designed to be used in a pipeline for processing road data,</span>
+<span class="sd">        where each method can be chained together to perform a series of operations</span>
+<span class="sd">        on the road data.</span>
+
+<span class="sd">        The methods assume that the input data is already in a suitable format for</span>
+<span class="sd">        processing, such as a GIS vector file for loading into a database or a table</span>
+<span class="sd">        containing road geometries for dissolving and segmenting.</span>
+<span class="sd">        The class is intended to be used in conjunction with a spatial database</span>
+<span class="sd">        that supports SQL queries for spatial operations, such as DuckDB with</span>
+<span class="sd">        the Spatial extension or PostGIS.</span>
+<span class="sd">        The methods are designed to be flexible and can be adapted to different</span>
+<span class="sd">        use cases by modifying the parameters passed to them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Pipeline.Processing.load_file">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.load_file">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">load_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Load a file into a database table.</span>
+
+<span class="sd">            Method validates the provided file path and determines if existing</span>
+<span class="sd">            and determines the appropriate loading method based on the file type.</span>
+<span class="sd">            It generates an SQL query to create or replace a table in the database</span>
+<span class="sd">            with the contents of the file. The method supports CSV files and other</span>
+<span class="sd">            GIS vector files, using different loading methods for each type.</span>
+
+<span class="sd">            :param file_path: The path to the file to be loaded.</span>
+<span class="sd">            :type file_path: str</span>
+<span class="sd">            :param table_name: The name of the table to create or replace in the database.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :raises AssertionError: If the file does not exist.</span>
+<span class="sd">            :return: SQL query string to create or replace the table with the file data.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span>
+
+            <span class="n">loader_method</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;read_csv_auto&quot;</span> <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span> <span class="k">else</span> <span class="s2">&quot;ST_Read&quot;</span>
+            <span class="p">)</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE OR REPLACE TABLE &#39;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&#39; AS SELECT * FROM </span><span class="si">{</span><span class="n">loader_method</span><span class="si">}</span><span class="s2">(&#39;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&#39;);</span>
+<span class="s2">            CREATE OR REPLACE SEQUENCE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">_id;</span>
+<span class="s2">            ALTER TABLE &#39;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&#39; ADD COLUMN uid INTEGER DEFAULT nextval(&#39;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">_id&#39;);</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">query</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.dissolve_features">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.dissolve_features">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">dissolve_features</span><span class="p">(</span><span class="n">attribute</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Dissolve features in a table based on a specified attribute.</span>
+
+<span class="sd">            This method generates an SQL query to dissolve features in a table</span>
+<span class="sd">            based on the provided attribute. It assumes the table is already loaded</span>
+<span class="sd">            into the database.</span>
+
+<span class="sd">            :param attribute: The attribute to dissolve features by.</span>
+<span class="sd">            :type attribute: str</span>
+<span class="sd">            :param table_name: The name of the table containing the features, default is &quot;road&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+
+<span class="sd">            :return: SQL query string to dissolve features.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">group_expression</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;GROUP BY </span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="k">if</span> <span class="n">attribute</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                CREATE OR REPLACE TABLE dissolved AS</span>
+<span class="s2">                SELECT UNNEST(ST_Dump(ST_LineMerge(ST_Union_Agg(geom))), recursive := true) as geom</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">group_expression</span><span class="si">}</span>
+<span class="s2">                &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.split_to_segments">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.split_to_segments">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">split_to_segments</span><span class="p">(</span>
+            <span class="n">segment_length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dissolved&quot;</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Split lines into segments of a specified length.</span>
+
+<span class="sd">            This method generates an SQL query to split lines in a table into segments</span>
+<span class="sd">            of a specified length. It transforms the geometries to a computational</span>
+<span class="sd">            coordinate reference system (CRS) and calculates the lengths in meters.</span>
+<span class="sd">            The segments are created by generating windows of fixed length along the lines.</span>
+<span class="sd">            The resulting segments are stored in a new table named &quot;segments&quot;.</span>
+<span class="sd">            The method assumes that the input table is already dissolved and contains</span>
+<span class="sd">            geometries in a suitable format.</span>
+
+<span class="sd">            The segments are created by cutting the lines into fixed-length segments</span>
+<span class="sd">            and filtering out any empty geometries.</span>
+<span class="sd">            This method is useful for preparing road segments for further analysis or processing.</span>
+<span class="sd">            It is particularly useful in road network analysis, where roads need to be</span>
+<span class="sd">            divided into manageable segments for tasks such as traffic analysis, road condition</span>
+<span class="sd">            assessment, or infrastructure planning.</span>
+
+<span class="sd">            :param segment_length: The length of each segment in meters.</span>
+<span class="sd">            :type segment_length: float</span>
+<span class="sd">            :param table_name: The name of the table containing the lines, default is &quot;dissolved&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to create or replace the segments table.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">computational_crs</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE OR REPLACE TABLE segments AS</span>
+<span class="s2">            -- transform to local projection system</span>
+<span class="s2">            -- and calculate length in meters</span>
+<span class="s2">            WITH measured AS (</span>
+<span class="s2">            SELECT  </span>
+<span class="s2">                -- ST_Transform(geom, &#39;EPSG:4326&#39;, &#39;</span><span class="si">{</span><span class="n">computational_crs</span><span class="si">}</span><span class="s2">&#39;, always_xy := true) AS geom_m,</span>
+<span class="s2">                -- ST_Length(ST_Transform(geom, &#39;EPSG:4326&#39;, &#39;</span><span class="si">{</span><span class="n">computational_crs</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS len_m</span>
+<span class="s2">                geom,</span>
+<span class="s2">                ST_Length(geom) AS len_m</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">            ),</span>
+<span class="s2">            -- generate windows of fixed length</span>
+<span class="s2">            windows AS (</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                </span>
+<span class="s2">                m.geom,</span>
+<span class="s2">                m.len_m,</span>
+<span class="s2">                -- start distance (meters)</span>
+<span class="s2">                (i * CAST(</span><span class="si">{</span><span class="n">segment_length</span><span class="si">}</span><span class="s2"> AS DOUBLE)) AS s,</span>
+<span class="s2">                -- end distance (meters), capped at total length</span>
+<span class="s2">                LEAST((i + 1) * CAST(</span><span class="si">{</span><span class="n">segment_length</span><span class="si">}</span><span class="s2"> AS DOUBLE), m.len_m) AS e</span>
+<span class="s2">            FROM measured AS m</span>
+<span class="s2">            JOIN LATERAL generate_series(</span>
+<span class="s2">                0,</span>
+<span class="s2">                CAST(CEIL(m.len_m / CAST(</span><span class="si">{</span><span class="n">segment_length</span><span class="si">}</span><span class="s2"> AS DOUBLE)) AS BIGINT) - 1</span>
+<span class="s2">            ) AS g(i) ON TRUE</span>
+<span class="s2">            WHERE m.len_m &gt; 0</span>
+<span class="s2">            ),</span>
+<span class="s2">            -- cut the lines into segments</span>
+<span class="s2">            cut AS (</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_LineSubstring(</span>
+<span class="s2">                    geom,</span>
+<span class="s2">                    s / NULLIF(len_m, 0),</span>
+<span class="s2">                    e / NULLIF(len_m, 0)</span>
+<span class="s2">                ) AS geom</span>
+<span class="s2">            FROM windows</span>
+<span class="s2">            WHERE len_m &gt; 0</span>
+<span class="s2">            )</span>
+<span class="s2">            -- filter out empty geometries</span>
+<span class="s2">            SELECT geom</span>
+<span class="s2">            FROM cut</span>
+<span class="s2">            WHERE NOT ST_IsEmpty(geom);</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">query</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.generate_patches">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.generate_patches">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">generate_patches</span><span class="p">(</span>
+            <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;segments&quot;</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Generate patches from segments.</span>
+
+<span class="sd">            This method generates patches from segments by creating a rectangular</span>
+<span class="sd">            envelope around each segment, rotated to align with the segment&#39;s direction.</span>
+<span class="sd">            The patches are created by translating and rotating the envelope to the</span>
+<span class="sd">            start point of the segment, ensuring that each patch is oriented correctly</span>
+<span class="sd">            along the segment&#39;s direction.</span>
+
+<span class="sd">            :param width: The width of the patches in meters.</span>
+<span class="sd">            :type width: float</span>
+<span class="sd">            :param length: The length of the patches in meters.</span>
+<span class="sd">            :type length: float</span>
+<span class="sd">            :param table_name: The name of the table containing the segments, default is &quot;segments&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to create or replace the patches table.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">assert</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Width must be greater than 0.&quot;</span>
+            <span class="k">assert</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Length must be greater than 0.&quot;</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE OR REPLACE TABLE patches AS</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                ST_Translate(</span>
+<span class="s2">                ST_RotateZ(</span>
+<span class="s2">                    ST_MakeEnvelope(-</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2"> / 2, 0, </span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2"> / 2, </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">),</span>
+<span class="s2">                    -ST_Azimuth(ST_StartPoint(geom), ST_EndPoint(geom))</span>
+<span class="s2">                ),</span>
+<span class="s2">                ST_X(ST_StartPoint(geom)), ST_Y(ST_StartPoint(geom))</span>
+<span class="s2">                ) AS geom</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">            CREATE OR REPLACE SEQUENCE patches_id;</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN uid INTEGER DEFAULT nextval(&#39;patches_id&#39;);</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">query</span></div>
+
+
+        <span class="c1"># @staticmethod</span>
+        <span class="c1"># def save_table_as_geojson(table_name: str, output_path: str) -&gt; str:</span>
+        <span class="c1">#     &quot;&quot;&quot;Save a table as a GeoJSON file.</span>
+        <span class="c1">#     This method generates an SQL query to save the contents of a table</span>
+        <span class="c1">#     as a GeoJSON file. It assumes that the table contains geometries in a</span>
+        <span class="c1">#     format compatible with GeoJSON and that the output path is a valid file path.</span>
+
+        <span class="c1">#     :param table_name: The name of the table to save as GeoJSON.</span>
+        <span class="c1">#     :type table_name: str</span>
+        <span class="c1">#     :param output_path: The path where the GeoJSON file will be saved.</span>
+        <span class="c1">#     :type output_path: str</span>
+        <span class="c1">#     :raises AssertionError: If the output path does not exist.</span>
+        <span class="c1">#     :return: SQL query string to save the table as a GeoJSON file.</span>
+        <span class="c1">#     :rtype: str</span>
+        <span class="c1">#     &quot;&quot;&quot;</span>
+        <span class="c1">#     assert Path(</span>
+        <span class="c1">#         output_path</span>
+        <span class="c1">#     ).parent.exists(), f&quot;Directory {Path(output_path).parent} does not exist.&quot;</span>
+
+        <span class="c1">#     return f&quot;&quot;&quot;</span>
+        <span class="c1">#     COPY (SELECT * FROM {table_name}) TO &#39;{output_path}&#39; (FORMAT GDAL, DRIVER &#39;GeoJSON&#39;, OVERWRITE TRUE);</span>
+        <span class="c1">#     &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Pipeline.Processing.spatial_tranformation">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.spatial_tranformation">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">spatial_tranformation</span><span class="p">(</span>
+            <span class="n">source_epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Transform geometries from one EPSG code to another.</span>
+
+<span class="sd">            This method generates an SQL query to transform geometries in a table</span>
+<span class="sd">            from one EPSG code to another. It assumes that the input table contains</span>
+<span class="sd">            geometries in the source EPSG code and that the target EPSG code is valid.</span>
+
+<span class="sd">            :param source_epsg: The source EPSG code of the geometries.</span>
+<span class="sd">            :type source_epsg: str</span>
+<span class="sd">            :param target_epsg: The target EPSG code to transform the geometries to.</span>
+<span class="sd">            :type target_epsg: str</span>
+<span class="sd">            :param table_name: The name of the table containing the geometries, default is &quot;patches&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+
+<span class="sd">            :return: SQL query string to transform the geometries.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE &#39;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&#39; SET geom = ST_Transform(geom, &#39;</span><span class="si">{</span><span class="n">source_epsg</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">target_epsg</span><span class="si">}</span><span class="s2">&#39;, always_xy := true);</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.build_geometry">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.build_geometry">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">build_geometry</span><span class="p">(</span><span class="n">latitude</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">longitude</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Build a geometry from latitude and longitude coordinates.</span>
+
+<span class="sd">            This method generates an SQL query to build a geometry column in a table</span>
+<span class="sd">            from latitude and longitude coordinates. It assumes that the input table</span>
+<span class="sd">            contains columns for latitude and longitude.</span>
+
+<span class="sd">            :param latitude: The name of the column containing latitude values.</span>
+<span class="sd">            :type latitude: str</span>
+<span class="sd">            :param longitude: The name of the column containing longitude values.</span>
+<span class="sd">            :type longitude: str</span>
+<span class="sd">            :param table_name: The name of the table to add the geometry column to.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to build the geometry column.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> ADD COLUMN geom GEOMETRY;</span>
+<span class="s2">            UPDATE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> SET geom = ST_Point(</span><span class="si">{</span><span class="n">longitude</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">latitude</span><span class="si">}</span><span class="s2">);    </span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.relate_point_patches">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.relate_point_patches">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">relate_point_patches</span><span class="p">(</span><span class="n">point_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">patch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;patches&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Relate points to patches by assigning patch IDs to points.</span>
+
+<span class="sd">            This method generates an SQL query to relate points in one table to patches</span>
+<span class="sd">            in another table by assigning patch IDs to points based on their spatial</span>
+<span class="sd">            relationship. It assumes that the point table contains a geometry column</span>
+<span class="sd">            and that the patch table contains a geometry column and a unique identifier</span>
+<span class="sd">            for each patch.</span>
+
+<span class="sd">            :param point_name: The name of the table containing the points.</span>
+<span class="sd">            :type point_name: str</span>
+<span class="sd">            :param patch_name: The name of the table containing the patches, default is &quot;patches&quot;.</span>
+<span class="sd">            :type patch_name: str</span>
+<span class="sd">            :return: SQL query string to relate points to patches.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE </span><span class="si">{</span><span class="n">point_name</span><span class="si">}</span><span class="s2"> ADD COLUMN patch_id INTEGER;</span>
+<span class="s2">            UPDATE </span><span class="si">{</span><span class="n">point_name</span><span class="si">}</span>
+<span class="s2">            SET patch_id = subquery.uid</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT first.uid AS point_uid, second.uid AS uid</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">point_name</span><span class="si">}</span><span class="s2"> AS first</span>
+<span class="s2">                JOIN </span><span class="si">{</span><span class="n">patch_name</span><span class="si">}</span><span class="s2"> AS second</span>
+<span class="s2">                ON ST_Within(first.geom, second.geom)</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE </span><span class="si">{</span><span class="n">point_name</span><span class="si">}</span><span class="s2">.uid = subquery.point_uid;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_point_density">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_point_density">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_point_density</span><span class="p">(</span><span class="n">point_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">patch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;patches&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate point density per patch.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the point density per patch</span>
+<span class="sd">            by counting the number of points within each patch and dividing by the area</span>
+<span class="sd">            of the patch in square kilometers. It assumes that the point table contains</span>
+<span class="sd">            a geometry column and that the patch table contains a geometry column and</span>
+<span class="sd">            a unique identifier for each patch.</span>
+
+<span class="sd">            :param point_name: The name of the table containing the points.</span>
+<span class="sd">            :type point_name: str</span>
+<span class="sd">            :param patch_name: The name of the table containing the patches, default is &quot;patches&quot;.</span>
+<span class="sd">            :type patch_name: str</span>
+<span class="sd">            :return: SQL query string to calculate point density per patch.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            -- calculate the point count and density per patch</span>
+<span class="s2">            ALTER TABLE </span><span class="si">{</span><span class="n">patch_name</span><span class="si">}</span><span class="s2"> ADD COLUMN point_count INTEGER;</span>
+<span class="s2">            ALTER TABLE </span><span class="si">{</span><span class="n">patch_name</span><span class="si">}</span><span class="s2"> ADD COLUMN ps_density FLOAT DEFAULT 0.0;</span>
+
+<span class="s2">            UPDATE </span><span class="si">{</span><span class="n">patch_name</span><span class="si">}</span>
+<span class="s2">            SET point_count = subquery.point_count,</span>
+<span class="s2">                ps_density = subquery.point_count / (ST_Area(subquery.geom) / 1_000_000.0)</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT second.uid AS patch_id, COUNT(first.uid) AS point_count, second.geom</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">point_name</span><span class="si">}</span><span class="s2"> AS first</span>
+<span class="s2">                JOIN </span><span class="si">{</span><span class="n">patch_name</span><span class="si">}</span><span class="s2"> AS second</span>
+<span class="s2">                ON ST_Within(first.geom, second.geom)</span>
+<span class="s2">                GROUP BY second.uid, second.geom</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE </span><span class="si">{</span><span class="n">patch_name</span><span class="si">}</span><span class="s2">.uid = subquery.patch_id;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.get_column_names">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.get_column_names">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_column_names</span><span class="p">(</span><span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get column names from a table.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the column names from a specified table.</span>
+
+<span class="sd">            :param table_name: The name of the table to retrieve column names from.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to get the column names.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT column_name FROM (DESCRIBE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">);</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_cum_disp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_cum_disp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_cum_disp</span><span class="p">(</span><span class="n">dates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate cumulative displacement.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the cumulative displacement</span>
+<span class="sd">            for each point in a table based on the provided date fields. It assumes that</span>
+<span class="sd">            the input table contains columns for displacement values at different dates.</span>
+
+<span class="sd">            :param dates: List of column names representing dates.</span>
+<span class="sd">            :type dates: list[str]</span>
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to calculate cumulative displacement.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> ADD COLUMN displacement FLOAT;</span>
+<span class="s2">            UPDATE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">            SET displacement = first.disp</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT uid, </span><span class="si">{</span><span class="n">dates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">dates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> as disp </span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">            ) as first</span>
+<span class="s2">            JOIN </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> as second</span>
+<span class="s2">            ON first.uid = second.uid</span>
+<span class="s2">            WHERE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.uid = first.uid;            </span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_avg_cum_disp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_avg_cum_disp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_avg_cum_disp</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate average cumulative displacement per patch.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the average cumulative</span>
+<span class="sd">            displacement for each patch by averaging the displacement values of points</span>
+<span class="sd">            within each patch. It assumes that the point table contains a geometry column,</span>
+<span class="sd">            a displacement column, and that the patch table contains a geometry column</span>
+<span class="sd">            and a unique identifier for each patch.</span>
+
+<span class="sd">            :return: SQL query string to calculate average cumulative displacement per patch.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN avg_cum_disp DOUBLE DEFAULT 0.0;</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET avg_cum_disp = (</span>
+<span class="s2">                SELECT AVG(displacement)</span>
+<span class="s2">                FROM pspoint</span>
+<span class="s2">                WHERE patch_id = patches.uid</span>
+<span class="s2">            );</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_avg_velocity">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_avg_velocity">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_avg_velocity</span><span class="p">(</span>
+            <span class="n">time_vector</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+            <span class="n">field_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+            <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate average velocity using linear regression.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the average velocity for</span>
+<span class="sd">            each point in a table using linear regression on displacement values over time.</span>
+<span class="sd">            It assumes that the input table contains columns for displacement values at different dates and that the time vector is provided in days.</span>
+
+<span class="sd">            :param time_vector: List of time differences in days from the first date.</span>
+<span class="sd">            :type time_vector: list[float]</span>
+<span class="sd">            :param field_names: List of column names representing displacement values at different dates.</span>
+<span class="sd">            :type field_names: list[str]</span>
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to calculate average velocity.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">x_vals_sql</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">time_vector</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;]::DOUBLE[]&quot;</span>
+
+            <span class="n">y_fields_sql</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CAST(</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> AS DOUBLE)&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">field_names</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> ADD COLUMN avg_velocity_gcp DOUBLE;</span>
+<span class="s2">            WITH pairs AS (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    uid,</span>
+<span class="s2">                    list_element(</span><span class="si">{</span><span class="n">y_fields_sql</span><span class="si">}</span><span class="s2">, idx) as y,</span>
+<span class="s2">                    list_element(</span><span class="si">{</span><span class="n">x_vals_sql</span><span class="si">}</span><span class="s2">, idx) as x,</span>
+<span class="s2">                    patch_id</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                CROSS JOIN UNNEST(range(1, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">field_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> + 1)) AS u(idx)</span>
+<span class="s2">                WHERE patch_id IS NOT NULL</span>
+<span class="s2">            ),</span>
+<span class="s2">            slopes AS (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    uid,</span>
+<span class="s2">                    regr_slope(y, x) AS slope</span>
+<span class="s2">                FROM pairs</span>
+<span class="s2">                WHERE y IS NOT NULL AND x IS NOT NULL</span>
+<span class="s2">                GROUP BY uid</span>
+<span class="s2">            )</span>
+<span class="s2">            UPDATE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> AS t</span>
+<span class="s2">            SET avg_velocity_gcp = s.slope * 365.25 -- convert from per day to per year</span>
+<span class="s2">            FROM slopes AS s</span>
+<span class="s2">            WHERE t.uid = s.uid;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_avg_disp_ts_gcp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_avg_disp_ts_gcp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_avg_disp_ts_gcp</span><span class="p">(</span><span class="n">date_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate average displacement time series for patches (Average Local Displacement (ALD)).</span>
+
+<span class="sd">            This method generates an SQL query to calculate the average displacement</span>
+<span class="sd">            time series for each patch by averaging the displacement values of points within each patch</span>
+<span class="sd">            for the specified date fields. It assumes that the point table contains a geometry column,</span>
+<span class="sd">            displacement columns for each date field, and that the patch table contains a geometry column</span>
+<span class="sd">            and a unique identifier for each patch.</span>
+
+<span class="sd">            :param date_fields: List of column names representing displacement values at different dates.</span>
+<span class="sd">            :type date_fields: list[str]</span>
+<span class="sd">            :return: SQL query string to calculate average displacement time series per patch.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">expression</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;AVG(</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="n">date_fields</span><span class="p">)])</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN avg_disp_ts_gcp DOUBLE[];</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET avg_disp_ts_gcp = subquery.disp_ts</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    ARRAY[</span><span class="si">{</span><span class="n">expression</span><span class="si">}</span><span class="s2">] AS disp_ts</span>
+<span class="s2">                FROM pspoint</span>
+<span class="s2">                WHERE patch_id IS NOT NULL</span>
+<span class="s2">                GROUP BY patch_id</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE patches.uid = subquery.patch_id;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_std_disp_ts_gcp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_std_disp_ts_gcp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_std_disp_ts_gcp</span><span class="p">(</span><span class="n">date_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate standard deviation of displacement time series for patches based on global control point (GCP).</span>
+
+<span class="sd">            This method generates an SQL query to calculate the standard deviation</span>
+<span class="sd">            of displacement time series for each patch by computing the standard deviation of displacement values of points within each patch for the specified date fields.</span>
+
+<span class="sd">            :param date_fields: List of column names representing displacement values at different dates.</span>
+<span class="sd">            :type date_fields: list[str]</span>
+<span class="sd">            :return: SQL query string to calculate standard deviation of displacement time series per patch.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">expression</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;stddev_pop(</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="n">date_fields</span><span class="p">)])</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN std_disp_ts_gcp DOUBLE[];</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET std_disp_ts_gcp = subquery.disp_ts</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    ARRAY[</span><span class="si">{</span><span class="n">expression</span><span class="si">}</span><span class="s2">] AS disp_ts</span>
+<span class="s2">                FROM pspoint</span>
+<span class="s2">                WHERE patch_id IS NOT NULL</span>
+<span class="s2">                GROUP BY patch_id</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE patches.uid = subquery.patch_id;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.select_lcps">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.select_lcps">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">select_lcps</span><span class="p">(</span><span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Select linear control points (LCPs) for patches.</span>
+
+<span class="sd">            This method generates an SQL query to select local control points (LCPs) for each patch by identifying the point with the minimum absolute average velocity within each patch.</span>
+
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to select LCPs for patches.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN lcp_uid INTEGER;</span>
+<span class="s2">            WITH min_velocities AS (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    MIN(ABS(avg_velocity_gcp)) AS min_velocity</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE patch_id IS NOT NULL</span>
+<span class="s2">                GROUP BY patch_id</span>
+<span class="s2">            )</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET lcp_uid = subquery.uid</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    p.patch_id,</span>
+<span class="s2">                    p.uid</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> AS p</span>
+<span class="s2">                JOIN min_velocities AS mv </span>
+<span class="s2">                ON p.patch_id = mv.patch_id </span>
+<span class="s2">                AND ABS(p.avg_velocity_gcp) = mv.min_velocity</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE patches.uid = subquery.patch_id;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_lcp_velocity">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_lcp_velocity">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_lcp_velocity</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate LCP velocity for patches.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the velocity of the linear control point (LCP)</span>
+<span class="sd">            for each patch by retrieving the average velocity of the point identified as the LCP.</span>
+
+<span class="sd">            :return: SQL query string to calculate LCP velocity for patches.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot; </span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN lcp_velocity FLOAT;</span>
+<span class="s2">            WITH subquery AS (</span>
+<span class="s2">                SELECT patch_id, avg_velocity_gcp</span>
+<span class="s2">                FROM pspoint</span>
+<span class="s2">                WHERE uid IN (</span>
+<span class="s2">                    SELECT lcp_uid </span>
+<span class="s2">                    FROM patches </span>
+<span class="s2">                    WHERE lcp_uid IS NOT NULL</span>
+<span class="s2">                )</span>
+<span class="s2">            )</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET lcp_velocity = subquery.avg_velocity_gcp</span>
+<span class="s2">            FROM subquery</span>
+<span class="s2">            WHERE patches.uid = subquery.patch_id;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_avg_velocity_gcp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_avg_velocity_gcp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_avg_velocity_gcp</span><span class="p">(</span><span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate average velocity based on ground control points (GCPs) for patches.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the average velocity for each patch based on the average velocities of points within each patch.</span>
+
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to calculate average velocity based on GCPs for patches.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot; </span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN avg_gcp_velocity FLOAT;</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET avg_gcp_velocity = subquery.avg_vel </span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    AVG(avg_velocity_gcp) AS avg_vel</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE patch_id IS NOT NULL</span>
+<span class="s2">                GROUP BY patch_id</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE patches.uid = subquery.patch_id </span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_avg_std_disp_ts_lcp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_avg_std_disp_ts_lcp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_avg_std_disp_ts_lcp</span><span class="p">(</span>
+            <span class="n">date_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate average and standard deviation of displacement time series based on LCPs.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the average and standard</span>
+<span class="sd">            deviation of displacement time series for each patch based on the displacement</span>
+<span class="sd">            values of points within each patch relative to the local control point (LCP).</span>
+<span class="sd">            It assumes that the point table contains columns for displacement values at</span>
+<span class="sd">            different dates and that the patch table contains a geometry column and a unique</span>
+<span class="sd">            identifier for each patch.</span>
+
+<span class="sd">            :param date_fields: List of column names representing displacement values at different dates.</span>
+<span class="sd">            :type date_fields: list[str]</span>
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to calculate average and standard deviation of displacement time series based on LCPs.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">expression_to_select_date_fields</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">date_fields</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+            <span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">date_fields</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">expression_to_explode</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;list_extract(displacement, </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">) as </span><span class="si">{</span><span class="n">date_fields</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span>
+            <span class="p">)</span>
+            <span class="n">expresion_for_avg_per_date</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;AVG(</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">date_fields</span><span class="p">])</span>
+            <span class="n">expresion_for_std_per_date</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;stddev_pop(</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">date_fields</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN avg_disp_ts_lcp DOUBLE[];</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN std_disp_ts_lcp DOUBLE[];</span>
+<span class="s2">            WITH y as (</span>
+<span class="s2">                SELECT patch_id, </span><span class="si">{</span><span class="n">expression_to_select_date_fields</span><span class="si">}</span><span class="s2"> as y</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE patch_id IS NOT NULL</span>
+<span class="s2">            ),</span>
+<span class="s2">            x as (</span>
+<span class="s2">                SELECT patch_id, </span><span class="si">{</span><span class="n">expression_to_select_date_fields</span><span class="si">}</span><span class="s2"> as x</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE uid IN (SELECT lcp_uid FROM patches WHERE lcp_uid IS NOT NULL)</span>
+<span class="s2">            ),</span>
+<span class="s2">            process as (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    x.patch_id,</span>
+<span class="s2">                    list_transform(list_zip(y.y, x.x), arr -&gt; arr[1] - arr[2]) as displacement</span>
+<span class="s2">                FROM x</span>
+<span class="s2">                JOIN y</span>
+<span class="s2">                ON x.patch_id = y.patch_id</span>
+<span class="s2">            ),</span>
+<span class="s2">            exploded AS (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">expression_to_explode</span><span class="si">}</span>
+<span class="s2">                FROM process</span>
+<span class="s2">            ),</span>
+<span class="s2">            final AS (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    ARRAY[</span><span class="si">{</span><span class="n">expresion_for_avg_per_date</span><span class="si">}</span><span class="s2">] AS avg_disp_ts_lcp,</span>
+<span class="s2">                    ARRAY[</span><span class="si">{</span><span class="n">expresion_for_std_per_date</span><span class="si">}</span><span class="s2">] AS std_disp_ts_lcp</span>
+<span class="s2">                FROM exploded</span>
+<span class="s2">                GROUP BY patch_id</span>
+<span class="s2">            )</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET avg_disp_ts_lcp = final.avg_disp_ts_lcp,</span>
+<span class="s2">                std_disp_ts_lcp = final.std_disp_ts_lcp</span>
+<span class="s2">            FROM final</span>
+<span class="s2">            WHERE patches.uid = final.patch_id;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_med_std_disp_ts_lcp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_med_std_disp_ts_lcp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_med_std_disp_ts_lcp</span><span class="p">(</span>
+            <span class="n">date_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate average and standard deviation of displacement time series based on LCPs.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the average and standard</span>
+<span class="sd">            deviation of displacement time series for each patch based on the displacement</span>
+<span class="sd">            values of points within each patch relative to the local control point (LCP).</span>
+<span class="sd">            It assumes that the point table contains columns for displacement values at</span>
+<span class="sd">            different dates and that the patch table contains a geometry column and a unique</span>
+<span class="sd">            identifier for each patch.</span>
+
+<span class="sd">            :param date_fields: List of column names representing displacement values at different dates.</span>
+<span class="sd">            :type date_fields: list[str]</span>
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to calculate average and standard deviation of displacement time series based on LCPs.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">expression_to_select_date_fields</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">date_fields</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+            <span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">date_fields</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">expression_to_explode</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;list_extract(displacement, </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">) as </span><span class="si">{</span><span class="n">date_fields</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span>
+            <span class="p">)</span>
+            <span class="n">expresion_for_avg_per_date</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;AVG(</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">date_fields</span><span class="p">])</span>
+            <span class="n">expresion_for_std_per_date</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;stddev_pop(</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">date_fields</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN med_disp_ts_lcp DOUBLE[];</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN med_std_disp_ts_lcp DOUBLE[];</span>
+<span class="s2">            WITH y as (</span>
+<span class="s2">                SELECT patch_id, </span><span class="si">{</span><span class="n">expression_to_select_date_fields</span><span class="si">}</span><span class="s2"> as y</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE patch_id IS NOT NULL</span>
+<span class="s2">            ),</span>
+<span class="s2">            x as (</span>
+<span class="s2">                SELECT patch_id, </span><span class="si">{</span><span class="n">expression_to_select_date_fields</span><span class="si">}</span><span class="s2"> as x</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE uid IN (SELECT lcp_uid FROM patches WHERE lcp_uid IS NOT NULL)</span>
+<span class="s2">            ),</span>
+<span class="s2">            process as (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    x.patch_id,</span>
+<span class="s2">                    list_transform(list_zip(y.y, x.x), arr -&gt; arr[1] - arr[2]) as displacement</span>
+<span class="s2">                FROM x</span>
+<span class="s2">                JOIN y</span>
+<span class="s2">                ON x.patch_id = y.patch_id</span>
+<span class="s2">            ),</span>
+<span class="s2">            exploded AS (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">expression_to_explode</span><span class="si">}</span>
+<span class="s2">                FROM process</span>
+<span class="s2">            ),</span>
+<span class="s2">            final AS (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    ARRAY[</span><span class="si">{</span><span class="n">expresion_for_avg_per_date</span><span class="si">}</span><span class="s2">] AS med_disp_ts_lcp,</span>
+<span class="s2">                    ARRAY[</span><span class="si">{</span><span class="n">expresion_for_std_per_date</span><span class="si">}</span><span class="s2">] AS med_std_disp_ts_lcp</span>
+<span class="s2">                FROM exploded</span>
+<span class="s2">                GROUP BY patch_id</span>
+<span class="s2">            )</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET med_disp_ts_lcp = final.med_disp_ts_lcp,</span>
+<span class="s2">                med_std_disp_ts_lcp = final.med_std_disp_ts_lcp</span>
+<span class="s2">            FROM final</span>
+<span class="s2">            WHERE patches.uid = final.patch_id;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_avg_velocity_lcp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_avg_velocity_lcp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_avg_velocity_lcp</span><span class="p">(</span><span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate average velocity based on local control points (LCPs) for points.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the average velocity for each point</span>
+<span class="sd">            based on the average velocity of the local control point (LCP) associated with the patch</span>
+<span class="sd">            to which the point belongs. It assumes that the point table contains a geometry column,</span>
+<span class="sd">            an average velocity column based on ground control points (GCPs), and that the patch table</span>
+<span class="sd">            contains a geometry column, a unique identifier for each patch, and the average velocity</span>
+<span class="sd">            of the LCP.</span>
+
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to calculate average velocity based on LCPs for points.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> ADD COLUMN avg_velocity_lcp DOUBLE;</span>
+<span class="s2">            WITH y AS (</span>
+<span class="s2">                SELECT uid, patch_id, avg_velocity_gcp</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE patch_id IS NOT NULL</span>
+<span class="s2">            ),</span>
+<span class="s2">            x AS (</span>
+<span class="s2">                SELECT uid, lcp_velocity, lcp_uid</span>
+<span class="s2">                FROM patches</span>
+<span class="s2">                WHERE lcp_uid IS NOT NULL</span>
+<span class="s2">            )</span>
+<span class="s2">            UPDATE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">            SET avg_velocity_lcp = subquery.avg_velocity_lcp</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    y.avg_velocity_gcp - x.lcp_velocity AS avg_velocity_lcp, </span>
+<span class="s2">                    y.uid as uid</span>
+<span class="s2">                FROM x</span>
+<span class="s2">                JOIN y ON x.uid = y.patch_id</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.uid = subquery.uid;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_avg_lcp_velocity">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_avg_lcp_velocity">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_avg_lcp_velocity</span><span class="p">(</span><span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate average LCP velocity per patch.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the average velocity of</span>
+<span class="sd">            local control points (LCPs) for each patch by averaging the average velocities</span>
+<span class="sd">            of points within each patch based on their LCP velocities.</span>
+
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to calculate average LCP velocity per patch.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN avg_lcp_velocity FLOAT;</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET avg_lcp_velocity = subquery.avg_vel</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    AVG(avg_velocity_lcp) as avg_vel</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE patch_id IS NOT NULL</span>
+<span class="s2">                GROUP BY patch_id</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE patches.uid = subquery.patch_id</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_outliers">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_outliers">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_outliers</span><span class="p">(</span><span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Identify outlier points based on absolute average velocity.</span>
+
+<span class="sd">            This method generates an SQL query to identify outlier points based on their</span>
+<span class="sd">            average velocity relative to local control points (LCPs). Points with an absolute</span>
+<span class="sd">            average LCP velocity exceeding a specified threshold (5 mm/year) are</span>
+<span class="sd">            marked as outliers by assigning their unique identifier to a new column in the</span>
+<span class="sd">            patches table. The unit parameter allows for specifying the measurement unit</span>
+<span class="sd">            (meters, centimeters, or millimeters) to appropriately scale the threshold.</span>
+
+<span class="sd">            :param scaling_factor: The factor to scale the velocity threshold based on the unit.</span>
+<span class="sd">            :type scaling_factor: float</span>
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to identify outlier points.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot; </span>
+<span class="s2">            CREATE OR REPLACE TABLE outliers AS</span>
+<span class="s2">                SELECT patch_id, uid</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE ABS(avg_velocity_lcp) &gt; 5 / </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span>
+<span class="s2">                AND patch_id IS NOT NULL;</span>
+<span class="s2">            ALTER TABLE outliers ADD COLUMN criteria VARCHAR;</span>
+<span class="s2">            UPDATE outliers SET criteria = &#39;threshold&#39;;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_outliers_avg_lcd">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_outliers_avg_lcd">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_outliers_avg_lcd</span><span class="p">(</span>
+            <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">,</span> <span class="n">date_vector</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">date_names</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate outliers based on average local control displacement (LCD).</span>
+
+<span class="sd">            This method generates an SQL query to identify outlier points based on their</span>
+<span class="sd">            displacement time series relative to the average local control displacement (LCD)</span>
+<span class="sd">            of their associated patches. Points with displacement values exceeding the average</span>
+<span class="sd">            LCD by more than standard deviations at any time point are marked as outliers</span>
+<span class="sd">            by inserting their unique identifier and patch ID into a new outliers table.</span>
+
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :param date_vector: List of time differences in days from the first date.</span>
+<span class="sd">            :type date_vector: list[int]</span>
+<span class="sd">            :param date_names: List of column names representing displacement values at different dates.</span>
+<span class="sd">            :type date_names: list[str]</span>
+<span class="sd">            :return: SQL query string to identify outlier points based on average LCD.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">date_vector</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">730</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="n">first_index</span> <span class="o">=</span> <span class="n">npwhere</span><span class="p">(</span><span class="n">date_vector</span> <span class="o">&gt;=</span> <span class="n">date_vector</span> <span class="o">-</span> <span class="mi">730</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">column_select</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">date_names</span><span class="p">[</span><span class="n">first_index</span><span class="p">:])</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            with underthreshold as (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    uid, </span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    ARRAY[</span><span class="si">{</span><span class="n">column_select</span><span class="si">}</span><span class="s2">] as disp_ts </span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE uid NOT IN (SELECT uid FROM outliers)</span>
+<span class="s2">                AND patch_id IS NOT NULL</span>
+<span class="s2">            ),</span>
+<span class="s2">            sel_ts as (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    uid, </span>
+<span class="s2">                    avg_disp_ts_lcp[</span><span class="si">{</span><span class="n">first_index</span><span class="si">}</span><span class="s2">:] as avg,</span>
+<span class="s2">                    std_disp_ts_lcp[</span><span class="si">{</span><span class="n">first_index</span><span class="si">}</span><span class="s2">:] as std,</span>
+<span class="s2">                FROM patches</span>
+<span class="s2">                WHERE patches.uid IN (SELECT patch_id FROM underthreshold)  </span>
+<span class="s2">            ),</span>
+<span class="s2">            joined as (</span>
+<span class="s2">                SELECT * from underthreshold</span>
+<span class="s2">                JOIN sel_ts on sel_ts.uid = underthreshold.patch_id</span>
+<span class="s2">            ),</span>
+<span class="s2">            ald_points as (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    uid,</span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    list_min(</span>
+<span class="s2">                        list_apply(</span>
+<span class="s2">                            array_zip(disp_ts, avg, std),</span>
+<span class="s2">                            x -&gt; abs(x[1]-x[2]) &gt; x[3]</span>
+<span class="s2">                        )</span>
+<span class="s2">                    ) as all_greater</span>
+<span class="s2">                FROM joined</span>
+<span class="s2">                WHERE all_greater = true</span>
+<span class="s2">            )</span>
+<span class="s2">            INSERT INTO outliers (uid, patch_id, criteria)</span>
+<span class="s2">            SELECT uid, patch_id, &#39;ald&#39; FROM ald_points</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.calc_outliers_med_lcd">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.calc_outliers_med_lcd">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">calc_outliers_med_lcd</span><span class="p">(</span>
+            <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">,</span> <span class="n">date_vector</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">date_names</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate outliers based on median local control displacement (LCD).</span>
+
+<span class="sd">            This method generates an SQL query to identify outlier points based on their</span>
+<span class="sd">            displacement time series relative to the median local control displacement (LCD)</span>
+<span class="sd">            of their associated patches. Points with displacement values exceeding the median</span>
+<span class="sd">            LCD by more than standard deviations at any time point are marked as outliers</span>
+<span class="sd">            by inserting their unique identifier and patch ID into a new outliers table.</span>
+
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :param date_vector: List of time differences in days from the first date.</span>
+<span class="sd">            :type date_vector: list[int]</span>
+<span class="sd">            :param date_names: List of column names representing displacement values at different dates.</span>
+<span class="sd">            :type date_names: list[str]</span>
+<span class="sd">            :return: SQL query string to identify outlier points based on median LCD.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">date_vector</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">730</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="n">first_index</span> <span class="o">=</span> <span class="n">npwhere</span><span class="p">(</span><span class="n">date_vector</span> <span class="o">&gt;=</span> <span class="n">date_vector</span> <span class="o">-</span> <span class="mi">730</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">column_select</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">date_names</span><span class="p">[</span><span class="n">first_index</span><span class="p">:])</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            with underthreshold as (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    uid, </span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    ARRAY[</span><span class="si">{</span><span class="n">column_select</span><span class="si">}</span><span class="s2">] as disp_ts </span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">                WHERE uid NOT IN (SELECT uid FROM outliers)</span>
+<span class="s2">                AND patch_id IS NOT NULL</span>
+<span class="s2">            ),</span>
+<span class="s2">            sel_ts as (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    uid, </span>
+<span class="s2">                    med_disp_ts_lcp[</span><span class="si">{</span><span class="n">first_index</span><span class="si">}</span><span class="s2">:] as med,</span>
+<span class="s2">                    med_std_disp_ts_lcp[</span><span class="si">{</span><span class="n">first_index</span><span class="si">}</span><span class="s2">:] as std,</span>
+<span class="s2">                FROM patches</span>
+<span class="s2">                WHERE patches.uid IN (SELECT uid FROM underthreshold)  </span>
+<span class="s2">            ),</span>
+<span class="s2">            joined as (</span>
+<span class="s2">                SELECT * from underthreshold</span>
+<span class="s2">                JOIN sel_ts on sel_ts.uid = underthreshold.patch_id</span>
+<span class="s2">            ),</span>
+<span class="s2">            med_points as (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    uid,</span>
+<span class="s2">                    patch_id,</span>
+<span class="s2">                    list_min(</span>
+<span class="s2">                        list_apply(</span>
+<span class="s2">                            array_zip(disp_ts, med, std),</span>
+<span class="s2">                            x -&gt; abs(x[1]-x[2]) &gt; x[3]</span>
+<span class="s2">                        )</span>
+<span class="s2">                    ) as all_greater</span>
+<span class="s2">                FROM joined</span>
+<span class="s2">                WHERE all_greater = true</span>
+<span class="s2">            )</span>
+<span class="s2">            INSERT INTO outliers (uid, patch_id, criteria)</span>
+<span class="s2">            SELECT uid, patch_id, &#39;med&#39; FROM med_points</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.lcp_ts_patch">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.lcp_ts_patch">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">lcp_ts_patch</span><span class="p">(</span><span class="n">date_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get Local Control Point&#39;s displacement time series for patches.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the displacement time series</span>
+<span class="sd">            of the local control point (LCP) for each patch based on specified date fields.</span>
+
+<span class="sd">            :param date_fields: List of column names representing displacement values at different dates.</span>
+<span class="sd">            :type date_fields: list[str]</span>
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to get LCP displacement time series for patches.</span>
+<span class="sd">            :rtype: str</span>
+
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">date_fields_str</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">date_fields</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE patches ADD COLUMN lcp_disp_ts DOUBLE[];</span>
+<span class="s2">            UPDATE patches</span>
+<span class="s2">            SET lcp_disp_ts = subquery.disp_ts</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    p.patch_id,</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">date_fields_str</span><span class="si">}</span><span class="s2"> AS disp_ts</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> AS p</span>
+<span class="s2">                JOIN patches AS pa</span>
+<span class="s2">                ON p.uid = pa.lcp_uid</span>
+<span class="s2">                WHERE p.patch_id IS NOT NULL</span>
+<span class="s2">                -- GROUP BY p.patch_id</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE patches.uid = subquery.patch_id;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.outlier_ts_patch">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.outlier_ts_patch">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">outlier_ts_patch</span><span class="p">(</span><span class="n">date_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get outlier displacement time series for patches.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the displacement time series</span>
+<span class="sd">            of outlier points based on specified date fields.</span>
+
+<span class="sd">            :param date_fields: List of column names representing displacement values at different dates.</span>
+<span class="sd">            :type date_fields: list[str]</span>
+<span class="sd">            :param table_name: The name of the table containing the points, default is &quot;pspoint&quot;.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to get outlier displacement time series for patches.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">date_fields_str</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">date_fields</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE outliers ADD COLUMN disp_ts DOUBLE[];</span>
+<span class="s2">            UPDATE outliers</span>
+<span class="s2">            SET disp_ts = subquery.disp_ts</span>
+<span class="s2">            FROM (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    p.uid,</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">date_fields_str</span><span class="si">}</span><span class="s2"> AS disp_ts</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> AS p</span>
+<span class="s2">                WHERE p.uid IN (SELECT uid FROM outliers)</span>
+<span class="s2">            ) AS subquery</span>
+<span class="s2">            WHERE outliers.uid = subquery.uid;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Processing.outlier_rel_ts_patch">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Processing.outlier_rel_ts_patch">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">outlier_rel_ts_patch</span><span class="p">():</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate outlier displacement time series relative to LCP for patches.</span>
+
+<span class="sd">            This method generates an SQL query to calculate the displacement time series</span>
+<span class="sd">            of outlier points relative to the displacement time series of their associated</span>
+<span class="sd">            local control points (LCPs). It assumes that the outliers table contains a</span>
+<span class="sd">            geometry column, a displacement time series column, and a patch ID column,</span>
+<span class="sd">            and that the patches table contains a geometry column, a unique identifier</span>
+<span class="sd">            for each patch, and a displacement time series column for the LCP.</span>
+
+<span class="sd">            :return: SQL query string to calculate outlier displacement time series relative to LCP for patches.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            ALTER TABLE outliers ADD COLUMN rel_ts DOUBLE[];</span>
+<span class="s2">            with p_lcp as (</span>
+<span class="s2">                SELECT uid, lcp_disp_ts</span>
+<span class="s2">                FROM patches</span>
+<span class="s2">                WHERE lcp_uid IS NOT NULL</span>
+<span class="s2">            ),</span>
+<span class="s2">            p_out as (</span>
+<span class="s2">                SELECT o.uid, o.patch_id, o.disp_ts, p_lcp.lcp_disp_ts</span>
+<span class="s2">                FROM outliers AS o</span>
+<span class="s2">                JOIN p_lcp</span>
+<span class="s2">                ON o.patch_id = p_lcp.uid</span>
+<span class="s2">            )</span>
+<span class="s2">            UPDATE outliers</span>
+<span class="s2">            SET rel_ts = list_transform(</span>
+<span class="s2">                p_out.disp_ts, </span>
+<span class="s2">                (value, idx) -&gt; value - list_element(p_out.lcp_disp_ts, idx)</span>
+<span class="s2">            )</span>
+<span class="s2">            FROM p_out</span>
+<span class="s2">            WHERE outliers.uid = p_out.uid</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+</div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Visualisation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;SQL queries for visualisation of results.</span>
+
+<span class="sd">        2D visualisation is done in Web Mercator (EPSG:3857).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">projection</span> <span class="o">=</span> <span class="s2">&quot;EPSG:3857&quot;</span>
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_table_bbox">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_table_bbox">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_table_bbox</span><span class="p">(</span><span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get the bounding box of a table in a specified projection.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the bounding box of geometries</span>
+<span class="sd">            from a specified table, transforming the geometries from a source CRS to</span>
+<span class="sd">            a target projection defined in the Visualisation class.</span>
+
+<span class="sd">            :param table_name: The name of the table to get the bounding box from.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :return: SQL query string to get the bounding box of the table.</span>
+<span class="sd">            :rtype: str&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            with transformed as (</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                ST_TRANSFORM(geom, &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true) as geom </span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">            )</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                MIN(ST_XMIN(geom)) AS min_x,</span>
+<span class="s2">                MIN(ST_YMIN(geom)) AS min_y,</span>
+<span class="s2">                MAX(ST_XMAX(geom)) AS max_x,</span>
+<span class="s2">                MAX(ST_YMAX(geom)) AS max_y</span>
+<span class="s2">            FROM transformed;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_ps_density">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_ps_density">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_ps_density</span><span class="p">(</span><span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get point density per patch.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the point density for each patch,</span>
+<span class="sd">            transforming the geometries from a source CRS to a target projection defined</span>
+<span class="sd">            in the Visualisation class.</span>
+
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :return: SQL query string to get the point density per patch.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(geom, &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom,</span>
+<span class="s2">                ps_density</span>
+<span class="s2">            FROM patches</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_outliers_map">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_outliers_map">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_outliers_map</span><span class="p">(</span><span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get outlier points based on absolute average LCP velocity.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve outlier points based on their</span>
+<span class="sd">            average velocity relative to local control points (LCPs). Points with an absolute</span>
+<span class="sd">            average LCP velocity exceeding a specified threshold (5 mm/year) are</span>
+<span class="sd">            marked as outliers by assigning their unique identifier to a new column in the</span>
+<span class="sd">            patches table. The unit parameter allows for specifying the measurement unit</span>
+<span class="sd">            (meters, centimeters, or millimeters) to appropriately scale the threshold.</span>
+
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :param scaling_factor: The factor to scale the velocity threshold based on the unit.</span>
+<span class="sd">            :type scaling_factor: float</span>
+<span class="sd">            :return: SQL query string to identify outlier points.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(geom, &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom,</span>
+<span class="s2">                ABS(avg_velocity_lcp) * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2"> AS velocity,</span>
+<span class="s2">            FROM pspoint</span>
+<span class="s2">            WHERE uid IN (SELECT uid FROM outliers)</span>
+<span class="s2">            ORDER BY velocity ASC;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_cum_disp_map">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_cum_disp_map">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_cum_disp_map</span><span class="p">(</span><span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get cumulative displacement per patch.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the cumulative displacement</span>
+<span class="sd">            for each patch, transforming the geometries from a source CRS to a target</span>
+<span class="sd">            projection defined in the Visualisation class.</span>
+
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :param unit: The measurement unit for displacement (&quot;m&quot;, &quot;cm&quot;, or &quot;mm&quot;).</span>
+<span class="sd">            :type unit: str</span>
+<span class="sd">            :return: SQL query string to get the cumulative displacement per patch.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># scaling_factor = [1, 100, 1000][[&quot;m&quot;, &quot;cm&quot;, &quot;mm&quot;].index(unit)]</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(geom, &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom,</span>
+<span class="s2">                avg_cum_disp * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2"> AS cum_disp</span>
+<span class="s2">            FROM patches</span>
+<span class="s2">            WHERE avg_cum_disp IS NOT NULL</span>
+<span class="s2">            ORDER BY cum_disp ASC;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_ps_vel_gcp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_ps_vel_gcp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_ps_vel_gcp</span><span class="p">(</span><span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get average velocity based on ground control points (GCPs).</span>
+<span class="sd">            This method generates an SQL query to retrieve the average velocity for</span>
+<span class="sd">            each point based on ground control points (GCPs), transforming the geometries</span>
+<span class="sd">            from a source CRS to a target projection defined in the Visualisation class.</span>
+
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :param unit: The measurement unit for velocity (&quot;m&quot;, &quot;cm&quot;, or &quot;mm&quot;).</span>
+<span class="sd">            :type unit: str</span>
+<span class="sd">            :return: SQL query string to get the average velocity based on GCPs.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(geom, &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom,</span>
+<span class="s2">                avg_velocity_gcp * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2"> AS velocity</span>
+<span class="s2">            FROM pspoint</span>
+<span class="s2">            WHERE patch_id IS NOT NULL</span>
+<span class="s2">            ORDER BY velocity ASC;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_ps_vel_lcp">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_ps_vel_lcp">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_ps_vel_lcp</span><span class="p">(</span><span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get average velocity based on local control points (LCPs).</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the average velocity for</span>
+<span class="sd">            each point based on local control points (LCPs), transforming the geometries</span>
+<span class="sd">            from a source CRS to a target projection defined in the Visualisation class.</span>
+
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :param unit: The measurement unit for velocity (&quot;m&quot;, &quot;cm&quot;, or &quot;mm&quot;).</span>
+<span class="sd">            :type unit: str</span>
+<span class="sd">            :return: SQL query string to get the average velocity based on LCPs.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(geom, &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom,</span>
+<span class="s2">                ABS(avg_velocity_lcp) * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2"> AS velocity</span>
+<span class="s2">            FROM pspoint</span>
+<span class="s2">            WHERE patch_id IS NOT NULL</span>
+<span class="s2">            ORDER BY velocity ASC;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_center">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_center">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_center</span><span class="p">(</span><span class="n">point_uid</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get the center point of the outlier within a specific patch.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the center point of the outlier</span>
+<span class="sd">            within a specific patch, transforming the geometry from a source CRS to a target</span>
+<span class="sd">            projection defined in the Visualisation class.</span>
+
+<span class="sd">            :param point_uid: The unique identifier of the outlier point.</span>
+<span class="sd">            :type point_uid: float</span>
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :return: SQL query string to get the center point of the outlier within the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(ST_Centroid(geom), &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom</span>
+<span class="s2">            FROM pspoint</span>
+<span class="s2">            WHERE uid = </span><span class="si">{</span><span class="n">point_uid</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_patch_center">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_patch_center">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_patch_center</span><span class="p">(</span><span class="n">patch_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get the center point of a specific patch.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the center point of a specific</span>
+<span class="sd">            patch, transforming the geometry from a source CRS to a target projection defined in the Visualisation class.</span>
+
+<span class="sd">            :param patch_id: The unique identifier of the patch.</span>
+<span class="sd">            :type patch_id: float</span>
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :return: SQL query string to get the center point of the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(ST_Centroid(geom), &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom</span>
+<span class="s2">            FROM patches</span>
+<span class="s2">            WHERE uid = </span><span class="si">{</span><span class="n">patch_id</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_ps_points">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_ps_points">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_ps_points</span><span class="p">(</span><span class="n">patch_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get points within a specific patch.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve points within a specific patch,</span>
+<span class="sd">            transforming the geometries from a source CRS to a target projection defined</span>
+<span class="sd">            in the Visualisation class.</span>
+
+<span class="sd">            :param patch_id: The unique identifier of the patch.</span>
+<span class="sd">            :type patch_id: float</span>
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :param table_name: The name of the table containing the points.</span>
+<span class="sd">            :type table_name: str</span>
+<span class="sd">            :return: SQL query string to get the points within the specified patch.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(geom, &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom,</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">            WHERE patch_id = </span><span class="si">{</span><span class="n">patch_id</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_lcp_point">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_lcp_point">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_lcp_point</span><span class="p">(</span><span class="n">patch_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get the local control point (LCP) within a specific patch.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the local control point (LCP)</span>
+<span class="sd">            within a specific patch, transforming the geometry from a source CRS to a target</span>
+<span class="sd">            projection defined in the Visualisation class.</span>
+
+<span class="sd">            :param patch_id: The unique identifier of the patch.</span>
+<span class="sd">            :type patch_id: float</span>
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :return: SQL query string to get the LCP within the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(geom, &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom</span>
+<span class="s2">            FROM pspoint</span>
+<span class="s2">            WHERE uid = (</span>
+<span class="s2">                SELECT lcp_uid</span>
+<span class="s2">                FROM patches</span>
+<span class="s2">                WHERE uid = </span><span class="si">{</span><span class="n">patch_id</span><span class="si">}</span>
+<span class="s2">            )</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_outlier_points">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_outlier_points">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_outlier_points</span><span class="p">(</span><span class="n">patch_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">source_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get the outlier points within a specific patch.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the outlier point within a specific patch,</span>
+<span class="sd">            transforming the geometry from a source CRS to a target projection defined in the Visualisation class.</span>
+
+<span class="sd">            :param patch_id: The unique identifier of the patch.</span>
+<span class="sd">            :type patch_id: float</span>
+<span class="sd">            :param source_crs: The source coordinate reference system of the geometries.</span>
+<span class="sd">            :type source_crs: str</span>
+<span class="sd">            :return: SQL query string to get the outlier point within the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                uid,</span>
+<span class="s2">                ST_AsWKB(ST_TRANSFORM(geom, &#39;</span><span class="si">{</span><span class="n">source_crs</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">projection</span><span class="si">}</span><span class="s2">&#39;, always_xy := true)) AS geom</span>
+<span class="s2">            FROM pspoint</span>
+<span class="s2">            WHERE uid IN (</span>
+<span class="s2">                SELECT uid</span>
+<span class="s2">                FROM outliers</span>
+<span class="s2">                WHERE patch_id = </span><span class="si">{</span><span class="n">patch_id</span><span class="si">}</span>
+<span class="s2">            )</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_cum_disp_graph">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_cum_disp_graph">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_cum_disp_graph</span><span class="p">(</span><span class="n">outlier_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get outlier displacement time series.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the outlier displacement time series</span>
+<span class="sd">            for a specific patch, scaling the displacement values by a specified factor.</span>
+
+<span class="sd">            :param outlier_id: The unique identifier of the patch.</span>
+<span class="sd">            :type outlier_id: float</span>
+<span class="sd">            :param scaling_factor: The factor to scale the displacement values.</span>
+<span class="sd">            :type scaling_factor: float</span>
+<span class="sd">            :return: SQL query string to get the outlier displacement time series for the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                list_transform(disp_ts, x -&gt; x * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">            FROM outliers</span>
+<span class="s2">            WHERE uid = </span><span class="si">{</span><span class="n">outlier_id</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_avg_cum_disp_graph">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_avg_cum_disp_graph">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_avg_cum_disp_graph</span><span class="p">(</span><span class="n">patch_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get average cumulative displacement time series.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the average cumulative displacement</span>
+<span class="sd">            time series for a specific patch, scaling the displacement values by a specified factor.</span>
+
+<span class="sd">            :param patch_id: The unique identifier of the patch.</span>
+<span class="sd">            :type patch_id: float</span>
+<span class="sd">            :param scaling_factor: The factor to scale the displacement values.</span>
+<span class="sd">            :type scaling_factor: float</span>
+<span class="sd">            :return: SQL query string to get the average cumulative displacement time series for the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                list_transform(avg_disp_ts_gcp, x -&gt; x * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">            FROM patches</span>
+<span class="s2">            WHERE uid = </span><span class="si">{</span><span class="n">patch_id</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_std_cum_disp_graph">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_std_cum_disp_graph">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_std_cum_disp_graph</span><span class="p">(</span><span class="n">patch_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get standard deviation of cumulative displacement time series.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the standard deviation of cumulative</span>
+<span class="sd">            displacement time series for a specific patch, scaling the displacement values by a specified factor.</span>
+
+<span class="sd">            :param patch_id: The unique identifier of the patch.</span>
+<span class="sd">            :type patch_id: float</span>
+<span class="sd">            :param scaling_factor: The factor to scale the displacement values.</span>
+<span class="sd">            :type scaling_factor: float</span>
+<span class="sd">            :return: SQL query string to get the standard deviation of cumulative displacement time series for the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                list_transform(std_disp_ts_gcp, x -&gt; x * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">            FROM patches</span>
+<span class="s2">            WHERE uid = </span><span class="si">{</span><span class="n">patch_id</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_outlier_rel_ts_graph">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_outlier_rel_ts_graph">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_outlier_rel_ts_graph</span><span class="p">(</span><span class="n">outlier_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="c1"># TODO: check the logic here</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get outlier relative displacement time series.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the outlier relative displacement</span>
+<span class="sd">            time series for a specific patch, scaling the displacement values by a specified factor.</span>
+
+<span class="sd">            :param outlier_id: The unique identifier of the patch.</span>
+<span class="sd">            :type outlier_id: float</span>
+<span class="sd">            :param scaling_factor: The factor to scale the displacement values.</span>
+<span class="sd">            :type scaling_factor: float</span>
+<span class="sd">            :return: SQL query string to get the outlier relative displacement time series for the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                list_transform(rel_ts, x -&gt; x * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">            FROM outliers</span>
+<span class="s2">            WHERE uid = </span><span class="si">{</span><span class="n">outlier_id</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_lcp_disp_graph">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_lcp_disp_graph">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_lcp_disp_graph</span><span class="p">(</span><span class="n">patch_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get local control point (LCP) displacement time series.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the local control point (LCP)</span>
+<span class="sd">            displacement time series for a specific patch, scaling the displacement values by a specified factor.</span>
+
+<span class="sd">            :param patch_id: The unique identifier of the patch.</span>
+<span class="sd">            :type patch_id: float</span>
+<span class="sd">            :param scaling_factor: The factor to scale the displacement values.</span>
+<span class="sd">            :type scaling_factor: float</span>
+<span class="sd">            :return: SQL query string to get the LCP displacement time series for the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                list_transform(lcp_disp_ts, x -&gt; x * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">            FROM patches</span>
+<span class="s2">            WHERE uid = </span><span class="si">{</span><span class="n">patch_id</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_avg_disp_lcp_graph">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_avg_disp_lcp_graph">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_avg_disp_lcp_graph</span><span class="p">(</span><span class="n">patch_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get average displacement time series based on local control points (LCPs).</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the average displacement time series</span>
+<span class="sd">            based on local control points (LCPs) for a specific patch, scaling the displacement</span>
+<span class="sd">            values by a specified factor.</span>
+
+<span class="sd">            :param patch_id: The unique identifier of the patch.</span>
+<span class="sd">            :type patch_id: float</span>
+<span class="sd">            :param scaling_factor: The factor to scale the displacement values.</span>
+<span class="sd">            :type scaling_factor: float</span>
+<span class="sd">            :return: SQL query string to get the average displacement time series based on LCPs for the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                list_transform(avg_disp_ts_lcp, x -&gt; x * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">            FROM patches</span>
+<span class="s2">            WHERE uid = </span><span class="si">{</span><span class="n">patch_id</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.get_std_disp_lcp_graph">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.get_std_disp_lcp_graph">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_std_disp_lcp_graph</span><span class="p">(</span><span class="n">patch_id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get standard deviation of displacement time series based on local control points (LCPs).</span>
+
+<span class="sd">            This method generates an SQL query to retrieve the standard deviation of displacement</span>
+<span class="sd">            time series based on local control points (LCPs) for a specific patch, scaling the</span>
+<span class="sd">            displacement values by a specified factor.</span>
+
+<span class="sd">            :param patch_id: The unique identifier of the patch.</span>
+<span class="sd">            :type patch_id: float</span>
+<span class="sd">            :param scaling_factor: The factor to scale the displacement values.</span>
+<span class="sd">            :type scaling_factor: float</span>
+<span class="sd">            :return: SQL query string to get the standard deviation of displacement time series based on LCPs for the specified patch.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                list_transform(std_disp_ts_lcp, x -&gt; x * </span><span class="si">{</span><span class="n">scaling_factor</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">            FROM patches</span>
+<span class="s2">            WHERE uid = </span><span class="si">{</span><span class="n">patch_id</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.Visualisation.patch_uids">
+<a class="viewcode-back" href="../../api/saferoad.pipeline.html#saferoad.Pipeline.Visualisation.patch_uids">[docs]</a>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">patch_uids</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get all patch UIDs that have outliers.</span>
+
+<span class="sd">            This method generates an SQL query to retrieve all unique identifiers (UIDs)</span>
+<span class="sd">            of patches that have been identified as containing outliers.</span>
+
+<span class="sd">            :return: SQL query string to get all patch UIDs with outliers.</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT patch_id</span>
+<span class="s2">            FROM outliers</span>
+<span class="s2">            GROUP BY patch_id;</span>
+<span class="s2">            &quot;&quot;&quot;</span></div>
+</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, SafeStruct.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

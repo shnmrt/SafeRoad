@@ -1,0 +1,1184 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saferoad.pipeline module &mdash; saferoad 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="saferoad.plotter module" href="saferoad.plotter.html" />
+    <link rel="prev" title="saferoad.database module" href="saferoad.database.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            saferoad
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">saferoad</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="saferoad.html">saferoad package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="saferoad.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="saferoad.database.html">saferoad.database module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">saferoad.pipeline module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="saferoad.plotter.html">saferoad.plotter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="saferoad.saferoad.html">saferoad.saferoad module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="saferoad.utils.html">saferoad.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="saferoad.html#module-saferoad">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">saferoad</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">saferoad</a></li>
+          <li class="breadcrumb-item"><a href="saferoad.html">saferoad package</a></li>
+      <li class="breadcrumb-item active">saferoad.pipeline module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/saferoad.pipeline.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-saferoad.pipeline">
+<span id="saferoad-pipeline-module"></span><h1>saferoad.pipeline module<a class="headerlink" href="#module-saferoad.pipeline" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saferoad.pipeline.</span></span><span class="sig-name descname"><span class="pre">Pipeline</span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Processing</span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Processing class for processing road data.</p>
+<p>This class provides methods to load files into a database, dissolve features,
+split lines into segments, generate patches, and save tables as GeoJSON files.
+It assumes that the database connection is already established and that the
+necessary SQL functions for spatial operations are available.
+The methods in this class generate SQL queries that can be executed against
+a spatial database, such as DuckDB.</p>
+<p>The class does not handle database connections or query execution directly;
+it only generates the SQL queries as strings.
+The methods are static and can be called without instantiating the class.
+The class is designed to be used in a pipeline for processing road data,
+where each method can be chained together to perform a series of operations
+on the road data.</p>
+<p>The methods assume that the input data is already in a suitable format for
+processing, such as a GIS vector file for loading into a database or a table
+containing road geometries for dissolving and segmenting.
+The class is intended to be used in conjunction with a spatial database
+that supports SQL queries for spatial operations, such as DuckDB with
+the Spatial extension or PostGIS.
+The methods are designed to be flexible and can be adapted to different
+use cases by modifying the parameters passed to them.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.build_geometry">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">longitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.build_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.build_geometry" title="Link to this definition"></a></dt>
+<dd><p>Build a geometry from latitude and longitude coordinates.</p>
+<p>This method generates an SQL query to build a geometry column in a table
+from latitude and longitude coordinates. It assumes that the input table
+contains columns for latitude and longitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>latitude</strong> (<em>str</em>) – The name of the column containing latitude values.</p></li>
+<li><p><strong>longitude</strong> (<em>str</em>) – The name of the column containing longitude values.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table to add the geometry column to.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to build the geometry column.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_avg_cum_disp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_avg_cum_disp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_avg_cum_disp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_avg_cum_disp" title="Link to this definition"></a></dt>
+<dd><p>Calculate average cumulative displacement per patch.</p>
+<p>This method generates an SQL query to calculate the average cumulative
+displacement for each patch by averaging the displacement values of points
+within each patch. It assumes that the point table contains a geometry column,
+a displacement column, and that the patch table contains a geometry column
+and a unique identifier for each patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SQL query string to calculate average cumulative displacement per patch.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_avg_disp_ts_gcp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_avg_disp_ts_gcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_avg_disp_ts_gcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_avg_disp_ts_gcp" title="Link to this definition"></a></dt>
+<dd><p>Calculate average displacement time series for patches (Average Local Displacement (ALD)).</p>
+<p>This method generates an SQL query to calculate the average displacement
+time series for each patch by averaging the displacement values of points within each patch
+for the specified date fields. It assumes that the point table contains a geometry column,
+displacement columns for each date field, and that the patch table contains a geometry column
+and a unique identifier for each patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>date_fields</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing displacement values at different dates.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate average displacement time series per patch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_avg_lcp_velocity">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_avg_lcp_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_avg_lcp_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_avg_lcp_velocity" title="Link to this definition"></a></dt>
+<dd><p>Calculate average LCP velocity per patch.</p>
+<p>This method generates an SQL query to calculate the average velocity of
+local control points (LCPs) for each patch by averaging the average velocities
+of points within each patch based on their LCP velocities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate average LCP velocity per patch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_avg_std_disp_ts_lcp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_avg_std_disp_ts_lcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_avg_std_disp_ts_lcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_avg_std_disp_ts_lcp" title="Link to this definition"></a></dt>
+<dd><p>Calculate average and standard deviation of displacement time series based on LCPs.</p>
+<p>This method generates an SQL query to calculate the average and standard
+deviation of displacement time series for each patch based on the displacement
+values of points within each patch relative to the local control point (LCP).
+It assumes that the point table contains columns for displacement values at
+different dates and that the patch table contains a geometry column and a unique
+identifier for each patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>date_fields</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing displacement values at different dates.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate average and standard deviation of displacement time series based on LCPs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_avg_velocity">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_avg_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_avg_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_avg_velocity" title="Link to this definition"></a></dt>
+<dd><p>Calculate average velocity using linear regression.</p>
+<p>This method generates an SQL query to calculate the average velocity for
+each point in a table using linear regression on displacement values over time.
+It assumes that the input table contains columns for displacement values at different dates and that the time vector is provided in days.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_vector</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – List of time differences in days from the first date.</p></li>
+<li><p><strong>field_names</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing displacement values at different dates.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate average velocity.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_avg_velocity_gcp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_avg_velocity_gcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_avg_velocity_gcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_avg_velocity_gcp" title="Link to this definition"></a></dt>
+<dd><p>Calculate average velocity based on ground control points (GCPs) for patches.</p>
+<p>This method generates an SQL query to calculate the average velocity for each patch based on the average velocities of points within each patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate average velocity based on GCPs for patches.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_avg_velocity_lcp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_avg_velocity_lcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_avg_velocity_lcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_avg_velocity_lcp" title="Link to this definition"></a></dt>
+<dd><p>Calculate average velocity based on local control points (LCPs) for points.</p>
+<p>This method generates an SQL query to calculate the average velocity for each point
+based on the average velocity of the local control point (LCP) associated with the patch
+to which the point belongs. It assumes that the point table contains a geometry column,
+an average velocity column based on ground control points (GCPs), and that the patch table
+contains a geometry column, a unique identifier for each patch, and the average velocity
+of the LCP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate average velocity based on LCPs for points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_cum_disp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_cum_disp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_cum_disp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_cum_disp" title="Link to this definition"></a></dt>
+<dd><p>Calculate cumulative displacement.</p>
+<p>This method generates an SQL query to calculate the cumulative displacement
+for each point in a table based on the provided date fields. It assumes that
+the input table contains columns for displacement values at different dates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dates</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing dates.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate cumulative displacement.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_lcp_velocity">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_lcp_velocity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_lcp_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_lcp_velocity" title="Link to this definition"></a></dt>
+<dd><p>Calculate LCP velocity for patches.</p>
+<p>This method generates an SQL query to calculate the velocity of the linear control point (LCP)
+for each patch by retrieving the average velocity of the point identified as the LCP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SQL query string to calculate LCP velocity for patches.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_med_std_disp_ts_lcp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_med_std_disp_ts_lcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_med_std_disp_ts_lcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_med_std_disp_ts_lcp" title="Link to this definition"></a></dt>
+<dd><p>Calculate average and standard deviation of displacement time series based on LCPs.</p>
+<p>This method generates an SQL query to calculate the average and standard
+deviation of displacement time series for each patch based on the displacement
+values of points within each patch relative to the local control point (LCP).
+It assumes that the point table contains columns for displacement values at
+different dates and that the patch table contains a geometry column and a unique
+identifier for each patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>date_fields</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing displacement values at different dates.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate average and standard deviation of displacement time series based on LCPs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_outliers">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_outliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_outliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_outliers" title="Link to this definition"></a></dt>
+<dd><p>Identify outlier points based on absolute average velocity.</p>
+<p>This method generates an SQL query to identify outlier points based on their
+average velocity relative to local control points (LCPs). Points with an absolute
+average LCP velocity exceeding a specified threshold (5 mm/year) are
+marked as outliers by assigning their unique identifier to a new column in the
+patches table. The unit parameter allows for specifying the measurement unit
+(meters, centimeters, or millimeters) to appropriately scale the threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scaling_factor</strong> (<em>float</em>) – The factor to scale the velocity threshold based on the unit.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to identify outlier points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_outliers_avg_lcd">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_outliers_avg_lcd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">list[int]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">list[str]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_outliers_avg_lcd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_outliers_avg_lcd" title="Link to this definition"></a></dt>
+<dd><p>Calculate outliers based on average local control displacement (LCD).</p>
+<p>This method generates an SQL query to identify outlier points based on their
+displacement time series relative to the average local control displacement (LCD)
+of their associated patches. Points with displacement values exceeding the average
+LCD by more than standard deviations at any time point are marked as outliers
+by inserting their unique identifier and patch ID into a new outliers table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p></li>
+<li><p><strong>date_vector</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – List of time differences in days from the first date.</p></li>
+<li><p><strong>date_names</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing displacement values at different dates.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to identify outlier points based on average LCD.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_outliers_med_lcd">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_outliers_med_lcd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">list[int]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">list[str]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_outliers_med_lcd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_outliers_med_lcd" title="Link to this definition"></a></dt>
+<dd><p>Calculate outliers based on median local control displacement (LCD).</p>
+<p>This method generates an SQL query to identify outlier points based on their
+displacement time series relative to the median local control displacement (LCD)
+of their associated patches. Points with displacement values exceeding the median
+LCD by more than standard deviations at any time point are marked as outliers
+by inserting their unique identifier and patch ID into a new outliers table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p></li>
+<li><p><strong>date_vector</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – List of time differences in days from the first date.</p></li>
+<li><p><strong>date_names</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing displacement values at different dates.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to identify outlier points based on median LCD.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_point_density">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_point_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'patches'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_point_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_point_density" title="Link to this definition"></a></dt>
+<dd><p>Calculate point density per patch.</p>
+<p>This method generates an SQL query to calculate the point density per patch
+by counting the number of points within each patch and dividing by the area
+of the patch in square kilometers. It assumes that the point table contains
+a geometry column and that the patch table contains a geometry column and
+a unique identifier for each patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point_name</strong> (<em>str</em>) – The name of the table containing the points.</p></li>
+<li><p><strong>patch_name</strong> (<em>str</em>) – The name of the table containing the patches, default is “patches”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate point density per patch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.calc_std_disp_ts_gcp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_std_disp_ts_gcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.calc_std_disp_ts_gcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.calc_std_disp_ts_gcp" title="Link to this definition"></a></dt>
+<dd><p>Calculate standard deviation of displacement time series for patches based on global control point (GCP).</p>
+<p>This method generates an SQL query to calculate the standard deviation
+of displacement time series for each patch by computing the standard deviation of displacement values of points within each patch for the specified date fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>date_fields</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing displacement values at different dates.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to calculate standard deviation of displacement time series per patch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.dissolve_features">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dissolve_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attribute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.dissolve_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.dissolve_features" title="Link to this definition"></a></dt>
+<dd><p>Dissolve features in a table based on a specified attribute.</p>
+<p>This method generates an SQL query to dissolve features in a table
+based on the provided attribute. It assumes the table is already loaded
+into the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>attribute</strong> (<em>str</em>) – The attribute to dissolve features by.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the features, default is “road”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to dissolve features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.generate_patches">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_patches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'segments'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.generate_patches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.generate_patches" title="Link to this definition"></a></dt>
+<dd><p>Generate patches from segments.</p>
+<p>This method generates patches from segments by creating a rectangular
+envelope around each segment, rotated to align with the segment’s direction.
+The patches are created by translating and rotating the envelope to the
+start point of the segment, ensuring that each patch is oriented correctly
+along the segment’s direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>float</em>) – The width of the patches in meters.</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – The length of the patches in meters.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the segments, default is “segments”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to create or replace the patches table.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.get_column_names">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_column_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.get_column_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.get_column_names" title="Link to this definition"></a></dt>
+<dd><p>Get column names from a table.</p>
+<p>This method generates an SQL query to retrieve the column names from a specified table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table_name</strong> (<em>str</em>) – The name of the table to retrieve column names from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the column names.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.lcp_ts_patch">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lcp_ts_patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.lcp_ts_patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.lcp_ts_patch" title="Link to this definition"></a></dt>
+<dd><p>Get Local Control Point’s displacement time series for patches.</p>
+<p>This method generates an SQL query to retrieve the displacement time series
+of the local control point (LCP) for each patch based on specified date fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>date_fields</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing displacement values at different dates.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get LCP displacement time series for patches.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.load_file">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.load_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.load_file" title="Link to this definition"></a></dt>
+<dd><p>Load a file into a database table.</p>
+<p>Method validates the provided file path and determines if existing
+and determines the appropriate loading method based on the file type.
+It generates an SQL query to create or replace a table in the database
+with the contents of the file. The method supports CSV files and other
+GIS vector files, using different loading methods for each type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>str</em>) – The path to the file to be loaded.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table to create or replace in the database.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – If the file does not exist.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SQL query string to create or replace the table with the file data.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.outlier_rel_ts_patch">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outlier_rel_ts_patch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.outlier_rel_ts_patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.outlier_rel_ts_patch" title="Link to this definition"></a></dt>
+<dd><p>Calculate outlier displacement time series relative to LCP for patches.</p>
+<p>This method generates an SQL query to calculate the displacement time series
+of outlier points relative to the displacement time series of their associated
+local control points (LCPs). It assumes that the outliers table contains a
+geometry column, a displacement time series column, and a patch ID column,
+and that the patches table contains a geometry column, a unique identifier
+for each patch, and a displacement time series column for the LCP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SQL query string to calculate outlier displacement time series relative to LCP for patches.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.outlier_ts_patch">
+<span class="sig-name descname"><span class="pre">outlier_ts_patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.outlier_ts_patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.outlier_ts_patch" title="Link to this definition"></a></dt>
+<dd><p>Get outlier displacement time series for patches.</p>
+<p>This method generates an SQL query to retrieve the displacement time series
+of outlier points based on specified date fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>date_fields</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of column names representing displacement values at different dates.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get outlier displacement time series for patches.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.relate_point_patches">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">relate_point_patches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'patches'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.relate_point_patches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.relate_point_patches" title="Link to this definition"></a></dt>
+<dd><p>Relate points to patches by assigning patch IDs to points.</p>
+<p>This method generates an SQL query to relate points in one table to patches
+in another table by assigning patch IDs to points based on their spatial
+relationship. It assumes that the point table contains a geometry column
+and that the patch table contains a geometry column and a unique identifier
+for each patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point_name</strong> (<em>str</em>) – The name of the table containing the points.</p></li>
+<li><p><strong>patch_name</strong> (<em>str</em>) – The name of the table containing the patches, default is “patches”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to relate points to patches.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.select_lcps">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select_lcps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pspoint'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.select_lcps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.select_lcps" title="Link to this definition"></a></dt>
+<dd><p>Select linear control points (LCPs) for patches.</p>
+<p>This method generates an SQL query to select local control points (LCPs) for each patch by identifying the point with the minimum absolute average velocity within each patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points, default is “pspoint”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to select LCPs for patches.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.spatial_tranformation">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spatial_tranformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_epsg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_epsg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.spatial_tranformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.spatial_tranformation" title="Link to this definition"></a></dt>
+<dd><p>Transform geometries from one EPSG code to another.</p>
+<p>This method generates an SQL query to transform geometries in a table
+from one EPSG code to another. It assumes that the input table contains
+geometries in the source EPSG code and that the target EPSG code is valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_epsg</strong> (<em>str</em>) – The source EPSG code of the geometries.</p></li>
+<li><p><strong>target_epsg</strong> (<em>str</em>) – The target EPSG code to transform the geometries to.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the geometries, default is “patches”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to transform the geometries.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Processing.split_to_segments">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_to_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dissolved'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Processing.split_to_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Processing.split_to_segments" title="Link to this definition"></a></dt>
+<dd><p>Split lines into segments of a specified length.</p>
+<p>This method generates an SQL query to split lines in a table into segments
+of a specified length. It transforms the geometries to a computational
+coordinate reference system (CRS) and calculates the lengths in meters.
+The segments are created by generating windows of fixed length along the lines.
+The resulting segments are stored in a new table named “segments”.
+The method assumes that the input table is already dissolved and contains
+geometries in a suitable format.</p>
+<p>The segments are created by cutting the lines into fixed-length segments
+and filtering out any empty geometries.
+This method is useful for preparing road segments for further analysis or processing.
+It is particularly useful in road network analysis, where roads need to be
+divided into manageable segments for tasks such as traffic analysis, road condition
+assessment, or infrastructure planning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>segment_length</strong> (<em>float</em>) – The length of each segment in meters.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the lines, default is “dissolved”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to create or replace the segments table.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Visualisation</span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>SQL queries for visualisation of results.</p>
+<p>2D visualisation is done in Web Mercator (EPSG:3857).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_avg_cum_disp_graph">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_avg_cum_disp_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_avg_cum_disp_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_avg_cum_disp_graph" title="Link to this definition"></a></dt>
+<dd><p>Get average cumulative displacement time series.</p>
+<p>This method generates an SQL query to retrieve the average cumulative displacement
+time series for a specific patch, scaling the displacement values by a specified factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>scaling_factor</strong> (<em>float</em>) – The factor to scale the displacement values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the average cumulative displacement time series for the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_avg_disp_lcp_graph">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_avg_disp_lcp_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_avg_disp_lcp_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_avg_disp_lcp_graph" title="Link to this definition"></a></dt>
+<dd><p>Get average displacement time series based on local control points (LCPs).</p>
+<p>This method generates an SQL query to retrieve the average displacement time series
+based on local control points (LCPs) for a specific patch, scaling the displacement
+values by a specified factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>scaling_factor</strong> (<em>float</em>) – The factor to scale the displacement values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the average displacement time series based on LCPs for the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_center">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_center"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_center" title="Link to this definition"></a></dt>
+<dd><p>Get the center point of the outlier within a specific patch.</p>
+<p>This method generates an SQL query to retrieve the center point of the outlier
+within a specific patch, transforming the geometry from a source CRS to a target
+projection defined in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point_uid</strong> (<em>float</em>) – The unique identifier of the outlier point.</p></li>
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the center point of the outlier within the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_cum_disp_graph">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_cum_disp_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outlier_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_cum_disp_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_cum_disp_graph" title="Link to this definition"></a></dt>
+<dd><p>Get outlier displacement time series.</p>
+<p>This method generates an SQL query to retrieve the outlier displacement time series
+for a specific patch, scaling the displacement values by a specified factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outlier_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>scaling_factor</strong> (<em>float</em>) – The factor to scale the displacement values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the outlier displacement time series for the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_cum_disp_map">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_cum_disp_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_cum_disp_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_cum_disp_map" title="Link to this definition"></a></dt>
+<dd><p>Get cumulative displacement per patch.</p>
+<p>This method generates an SQL query to retrieve the cumulative displacement
+for each patch, transforming the geometries from a source CRS to a target
+projection defined in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – The measurement unit for displacement (“m”, “cm”, or “mm”).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the cumulative displacement per patch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_lcp_disp_graph">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_lcp_disp_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_lcp_disp_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_lcp_disp_graph" title="Link to this definition"></a></dt>
+<dd><p>Get local control point (LCP) displacement time series.</p>
+<p>This method generates an SQL query to retrieve the local control point (LCP)
+displacement time series for a specific patch, scaling the displacement values by a specified factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>scaling_factor</strong> (<em>float</em>) – The factor to scale the displacement values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the LCP displacement time series for the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_lcp_point">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_lcp_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_lcp_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_lcp_point" title="Link to this definition"></a></dt>
+<dd><p>Get the local control point (LCP) within a specific patch.</p>
+<p>This method generates an SQL query to retrieve the local control point (LCP)
+within a specific patch, transforming the geometry from a source CRS to a target
+projection defined in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the LCP within the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_outlier_points">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_outlier_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_outlier_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_outlier_points" title="Link to this definition"></a></dt>
+<dd><p>Get the outlier points within a specific patch.</p>
+<p>This method generates an SQL query to retrieve the outlier point within a specific patch,
+transforming the geometry from a source CRS to a target projection defined in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the outlier point within the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_outlier_rel_ts_graph">
+<span class="sig-name descname"><span class="pre">get_outlier_rel_ts_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_outlier_rel_ts_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_outlier_rel_ts_graph" title="Link to this definition"></a></dt>
+<dd><p>Get outlier relative displacement time series.</p>
+<p>This method generates an SQL query to retrieve the outlier relative displacement
+time series for a specific patch, scaling the displacement values by a specified factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outlier_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>scaling_factor</strong> (<em>float</em>) – The factor to scale the displacement values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the outlier relative displacement time series for the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_outliers_map">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_outliers_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_outliers_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_outliers_map" title="Link to this definition"></a></dt>
+<dd><p>Get outlier points based on absolute average LCP velocity.</p>
+<p>This method generates an SQL query to retrieve outlier points based on their
+average velocity relative to local control points (LCPs). Points with an absolute
+average LCP velocity exceeding a specified threshold (5 mm/year) are
+marked as outliers by assigning their unique identifier to a new column in the
+patches table. The unit parameter allows for specifying the measurement unit
+(meters, centimeters, or millimeters) to appropriately scale the threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+<li><p><strong>scaling_factor</strong> (<em>float</em>) – The factor to scale the velocity threshold based on the unit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to identify outlier points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_patch_center">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_patch_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_patch_center"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_patch_center" title="Link to this definition"></a></dt>
+<dd><p>Get the center point of a specific patch.</p>
+<p>This method generates an SQL query to retrieve the center point of a specific
+patch, transforming the geometry from a source CRS to a target projection defined in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the center point of the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_ps_density">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_ps_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_ps_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_ps_density" title="Link to this definition"></a></dt>
+<dd><p>Get point density per patch.</p>
+<p>This method generates an SQL query to retrieve the point density for each patch,
+transforming the geometries from a source CRS to a target projection defined
+in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the point density per patch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_ps_points">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_ps_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_ps_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_ps_points" title="Link to this definition"></a></dt>
+<dd><p>Get points within a specific patch.</p>
+<p>This method generates an SQL query to retrieve points within a specific patch,
+transforming the geometries from a source CRS to a target projection defined
+in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table containing the points.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the points within the specified patch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_ps_vel_gcp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_ps_vel_gcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_ps_vel_gcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_ps_vel_gcp" title="Link to this definition"></a></dt>
+<dd><p>Get average velocity based on ground control points (GCPs).
+This method generates an SQL query to retrieve the average velocity for
+each point based on ground control points (GCPs), transforming the geometries
+from a source CRS to a target projection defined in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – The measurement unit for velocity (“m”, “cm”, or “mm”).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the average velocity based on GCPs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_ps_vel_lcp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_ps_vel_lcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_ps_vel_lcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_ps_vel_lcp" title="Link to this definition"></a></dt>
+<dd><p>Get average velocity based on local control points (LCPs).</p>
+<p>This method generates an SQL query to retrieve the average velocity for
+each point based on local control points (LCPs), transforming the geometries
+from a source CRS to a target projection defined in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – The measurement unit for velocity (“m”, “cm”, or “mm”).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the average velocity based on LCPs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_std_cum_disp_graph">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_std_cum_disp_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_std_cum_disp_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_std_cum_disp_graph" title="Link to this definition"></a></dt>
+<dd><p>Get standard deviation of cumulative displacement time series.</p>
+<p>This method generates an SQL query to retrieve the standard deviation of cumulative
+displacement time series for a specific patch, scaling the displacement values by a specified factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>scaling_factor</strong> (<em>float</em>) – The factor to scale the displacement values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the standard deviation of cumulative displacement time series for the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_std_disp_lcp_graph">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_std_disp_lcp_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_std_disp_lcp_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_std_disp_lcp_graph" title="Link to this definition"></a></dt>
+<dd><p>Get standard deviation of displacement time series based on local control points (LCPs).</p>
+<p>This method generates an SQL query to retrieve the standard deviation of displacement
+time series based on local control points (LCPs) for a specific patch, scaling the
+displacement values by a specified factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch_id</strong> (<em>float</em>) – The unique identifier of the patch.</p></li>
+<li><p><strong>scaling_factor</strong> (<em>float</em>) – The factor to scale the displacement values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the standard deviation of displacement time series based on LCPs for the specified patch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.get_table_bbox">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_table_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.get_table_bbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.get_table_bbox" title="Link to this definition"></a></dt>
+<dd><p>Get the bounding box of a table in a specified projection.</p>
+<p>This method generates an SQL query to retrieve the bounding box of geometries
+from a specified table, transforming the geometries from a source CRS to
+a target projection defined in the Visualisation class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table to get the bounding box from.</p></li>
+<li><p><strong>source_crs</strong> (<em>str</em>) – The source coordinate reference system of the geometries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL query string to get the bounding box of the table.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.patch_uids">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">patch_uids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/saferoad/pipeline.html#Pipeline.Visualisation.patch_uids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.patch_uids" title="Link to this definition"></a></dt>
+<dd><p>Get all patch UIDs that have outliers.</p>
+<p>This method generates an SQL query to retrieve all unique identifiers (UIDs)
+of patches that have been identified as containing outliers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SQL query string to get all patch UIDs with outliers.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="saferoad.pipeline.Pipeline.Visualisation.projection">
+<span class="sig-name descname"><span class="pre">projection</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'EPSG:3857'</span></em><a class="headerlink" href="#saferoad.pipeline.Pipeline.Visualisation.projection" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="saferoad.database.html" class="btn btn-neutral float-left" title="saferoad.database module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="saferoad.plotter.html" class="btn btn-neutral float-right" title="saferoad.plotter module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, SafeStruct.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

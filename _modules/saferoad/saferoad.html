@@ -1,0 +1,785 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saferoad.saferoad &mdash; saferoad 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            saferoad
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">saferoad</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">saferoad</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">saferoad.saferoad</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for saferoad.saferoad</h1><div class="highlight"><pre>
+<span></span><span class="c1"># standard modules</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.wkb</span><span class="w"> </span><span class="kn">import</span> <span class="n">loads</span> <span class="k">as</span> <span class="n">wkb_loads</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="c1"># plotting modules</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_pdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">PdfPages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;Agg&quot;</span><span class="p">)</span>
+<span class="c1"># saferoad modules</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.plotter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plotter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_dates</span><span class="p">,</span> <span class="n">time_vector</span><span class="p">,</span> <span class="n">Timer</span>
+
+
+<div class="viewcode-block" id="PsData">
+<a class="viewcode-back" href="../../api/saferoad.saferoad.html#saferoad.PsData">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PsData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for storing point source data information.</span>
+
+<span class="sd">    :param filepath: Path to the point source data file.</span>
+<span class="sd">    :type filepath: str</span>
+<span class="sd">    :param latitude: Field name of the latitude field in the data file.</span>
+<span class="sd">    :type latitude: str</span>
+<span class="sd">    :param longitude: Field name of the longitude field in the data file.</span>
+<span class="sd">    :type longitude: str</span>
+<span class="sd">    :param unit: Unit of measurement for the coordinates. Options are &quot;m&quot;, &quot;cm&quot;, or &quot;mm&quot;. Default is &quot;m&quot;.</span>
+<span class="sd">    :type unit: Literal[&quot;m&quot;, &quot;cm&quot;, &quot;mm&quot;]</span>
+<span class="sd">    :param crs_code: Coordinate Reference System code. Default is &quot;EPSG:4326&quot;.</span>
+<span class="sd">    :type crs_code: str</span>
+<span class="sd">    :param name: Name identifier for the point source data. Default is &quot;pspoint&quot;.</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">unit</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;mm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;m&quot;</span>
+    <span class="n">crs_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;EPSG:4326&quot;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pspoint&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;File path must be provided.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;File path must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="s2">&quot;Latitude field name must be provided.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;Latitude field name must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span> <span class="s2">&quot;Longitude field name must be provided.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;Longitude field name must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;mm&quot;</span><span class="p">],</span> <span class="s2">&quot;Unit must be one of &#39;m&#39;, &#39;cm&#39;, or &#39;mm&#39;.&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs_code</span><span class="p">,</span> <span class="s2">&quot;CRS code must be provided.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs_code</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;CRS code must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Name must be provided.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;Name must be a string.&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Road">
+<a class="viewcode-back" href="../../api/saferoad.saferoad.html#saferoad.Road">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Road</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for storing road data information.</span>
+
+<span class="sd">    :param filepath: Path to the road data file.</span>
+<span class="sd">    :type filepath: str</span>
+<span class="sd">    :param crs_code: Coordinate Reference System code. Default is &quot;EPSG:4326&quot;.</span>
+<span class="sd">    :type crs_code: str</span>
+<span class="sd">    :param name: Name identifier for the road data. Default is &quot;road&quot;.</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">crs_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;EPSG:4326&quot;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;road&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;File path must be provided.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;File path must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Name must be provided.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;Name must be a string.&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SafeRoad">
+<a class="viewcode-back" href="../../api/saferoad.saferoad.html#saferoad.SafeRoad">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SafeRoad</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to perform road deformation analysis using MT-InSAR data.</span>
+
+<span class="sd">    :param road: An instance of the Road class containing road data information.</span>
+<span class="sd">    :type road: Road</span>
+<span class="sd">    :param ps_data: An instance of the PsData class containing MT-InSAR data information.</span>
+<span class="sd">    :type ps_data: PsData</span>
+<span class="sd">    :param computational_crs: A string representing the EPSG code for the computational CRS.</span>
+<span class="sd">    :type computational_crs: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">road</span><span class="p">:</span> <span class="n">Road</span><span class="p">,</span> <span class="n">ps_data</span><span class="p">:</span> <span class="n">PsData</span><span class="p">,</span> <span class="n">computational_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">road</span><span class="p">,</span> <span class="n">Road</span><span class="p">),</span> <span class="s2">&quot;road must be an instance of Road class&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">ps_data</span><span class="p">,</span> <span class="n">PsData</span>
+        <span class="p">),</span> <span class="s2">&quot;ps_data must be an instance of PsData class&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">computational_crs</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;computational_crs must be a string representing the EPSG code&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span> <span class="o">=</span> <span class="n">ps_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">road_data</span> <span class="o">=</span> <span class="n">road</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="n">DataBase</span><span class="p">()</span>
+        <span class="c1"># self.scaling_factor = self._set_scaling_factor_()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span> <span class="o">=</span> <span class="n">computational_crs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_scaling_factor_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># determine the scaling factor based on the unit</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;mm&quot;</span><span class="p">]</span>
+        <span class="n">sf</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">sf</span><span class="p">[</span><span class="n">units</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">unit</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="SafeRoad.load_files">
+<a class="viewcode-back" href="../../api/saferoad.saferoad.html#saferoad.SafeRoad.load_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the road and MT-InSAR data files into the database.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># setup the db if loading</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Setting up the database&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="c1"># road_query</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Loading road data&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">road_data</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">road_data</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="c1"># ps_query</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Loading ps data&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SafeRoad.preprocess">
+<a class="viewcode-back" href="../../api/saferoad.saferoad.html#saferoad.SafeRoad.preprocess">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Preprocess the road and MT-InSAR data.</span>
+
+<span class="sd">        This includes transforming the data to the computational CRS, dissolving road features,</span>
+<span class="sd">        and building geometries for the MT-InSAR points.</span>
+<span class="sd">        1. Transform the road and MT-InSAR data to the computational CRS.</span>
+<span class="sd">        2. Dissolve road features based on the provided attribute if given, otherwise merge all features.</span>
+<span class="sd">        3. Build geometries for the MT-InSAR points from the latitude and longitude columns.</span>
+<span class="sd">        4. Transform the MT-InSAR data to the computational CRS.</span>
+
+<span class="sd">        :param attribute: An optional string representing the attribute to dissolve road features.</span>
+<span class="sd">                          If None, all features will be merged. Default is None.</span>
+<span class="sd">        :type attribute: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Transform the road projection</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Transforming road data to computational CRS&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">spatial_tranformation</span><span class="p">(</span>
+                    <span class="n">source_epsg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">road_data</span><span class="o">.</span><span class="n">crs_code</span><span class="p">,</span>
+                    <span class="n">target_epsg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span><span class="p">,</span>
+                    <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">road_data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Dissolve the road features based on the provided attribute if given if not merge everything</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Dissolving road features&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">dissolve_features</span><span class="p">(</span>
+                    <span class="n">attribute</span><span class="o">=</span><span class="n">attribute</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">road_data</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="c1"># build the geometry for the psoints from csv headers</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Building geometry for PS data&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">build_geometry</span><span class="p">(</span>
+                    <span class="n">latitude</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="n">longitude</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                    <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Transform the ps data to the computational CRS</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Transforming PS data to computational CRS&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">spatial_tranformation</span><span class="p">(</span>
+                    <span class="n">source_epsg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">crs_code</span><span class="p">,</span>
+                    <span class="n">target_epsg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span><span class="p">,</span>
+                    <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SafeRoad.generate_rectangles">
+<a class="viewcode-back" href="../../api/saferoad.saferoad.html#saferoad.SafeRoad.generate_rectangles">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_rectangles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">road_width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate road segments and patches.</span>
+
+<span class="sd">        This involves:</span>
+<span class="sd">        1. Splitting the road into segments of equal length.</span>
+<span class="sd">        2. Generating rectangles along the road segments with a specified width.</span>
+<span class="sd">        2. Rotating the generated rectangles int the same direction along the road.</span>
+
+<span class="sd">        :param road_width: A float representing the width of the road segments in meters.</span>
+<span class="sd">        :param segment_length: A float representing the length of each road segment in meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Generating road segments and patches&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">split_to_segments</span><span class="p">(</span><span class="n">segment_length</span><span class="o">=</span><span class="n">segment_length</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">generate_patches</span><span class="p">(</span>
+                    <span class="n">width</span><span class="o">=</span><span class="n">road_width</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">segment_length</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SafeRoad.run_analysis">
+<a class="viewcode-back" href="../../api/saferoad.saferoad.html#saferoad.SafeRoad.run_analysis">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the deformation analysis on the MT-InSAR data for road network.</span>
+
+<span class="sd">        This includes calculating cumulative displacement, average velocity, point density,</span>
+<span class="sd">        local control points, and outliers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># calculate displacement per points</span>
+        <span class="c1"># get the column names from the ps_data</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">get_column_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="c1"># extract dates from the column names and generate time vector</span>
+        <span class="n">names</span><span class="p">,</span> <span class="n">dates</span> <span class="o">=</span> <span class="n">extract_dates</span><span class="p">(</span><span class="n">column_names</span><span class="o">=</span><span class="n">fields</span><span class="p">)</span>
+        <span class="n">date_vector</span> <span class="o">=</span> <span class="n">time_vector</span><span class="p">(</span><span class="n">dates</span><span class="o">=</span><span class="n">dates</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating cumulative displacement per point&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_cum_disp</span><span class="p">(</span>
+                    <span class="n">dates</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># build spatial relation with</span>
+        <span class="c1"># assign points to patches generate patch_id field on pspoint table</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Relating points to patches&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">relate_point_patches</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># calculate average velocity per point needs patch_id in pspoint table for optimization purposes</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating average velocity per point&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_avg_velocity</span><span class="p">(</span>
+                    <span class="n">time_vector</span><span class="o">=</span><span class="n">date_vector</span><span class="p">,</span>
+                    <span class="n">field_names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span>
+                    <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># calculate point count per patch and point density</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating point density per patch&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_point_density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="c1"># calculate average cumulative displacement per patch</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating average cumulative displacement per patch&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_avg_cum_disp</span><span class="p">())</span>
+        <span class="c1"># calculate average displacement time series per patch based on gcp</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span>
+            <span class="s2">&quot;Calculating average displacement time series per patch based on GCP&quot;</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_avg_disp_ts_gcp</span><span class="p">(</span><span class="n">date_fields</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="c1"># calculate standard deviation of displacement time series per patch based on gcp</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span>
+            <span class="s2">&quot;Calculating standard deviation of displacement time series per patch based on GCP&quot;</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_std_disp_ts_gcp</span><span class="p">(</span><span class="n">date_fields</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># calculate average velocity per patch based on gcp</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating average velocity per patch based on GCP&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_avg_velocity_gcp</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># calculate the local control point per patch</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating local control points per patch&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">select_lcps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="c1"># calculate the local control point avg velocity per patch</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating local control points average velocity per patch&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_lcp_velocity</span><span class="p">())</span>
+
+        <span class="c1"># calculate the average and std of the displacement time series per patch based on lcp</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span>
+            <span class="s2">&quot;Calculating average and std of displacement time series per patch based on LCP&quot;</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_avg_std_disp_ts_lcp</span><span class="p">(</span>
+                    <span class="n">date_fields</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># calculate the median and std of the displacement time series per patch based on lcp</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span>
+            <span class="s2">&quot;Calculating median and std of displacement time series per patch based on LCP&quot;</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_med_std_disp_ts_lcp</span><span class="p">(</span>
+                    <span class="n">date_fields</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># calculate the average velocity per patch based on lcp</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating average velocity per patch based on LCP&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_avg_velocity_lcp</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># calculate the average relative velocity per patch based on lcp</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating average relative velocity per patch based on LCP&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_avg_lcp_velocity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># calulate the outliers per patch based</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Calculating outliers per patch&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_outliers</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="n">threshold_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;Select count(*) from outliers;&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> outliers detected by threshold method&quot;</span> <span class="o">%</span> <span class="n">threshold_count</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_outliers_avg_lcd</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">date_vector</span><span class="o">=</span><span class="n">date_vector</span><span class="p">,</span> <span class="n">date_names</span><span class="o">=</span><span class="n">names</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">ald_count</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="s2">&quot;Select count(*) from outliers;&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="o">-</span> <span class="n">threshold_count</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> outliers detected by avg local disp method&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ald_count</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">calc_outliers_med_lcd</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">date_vector</span><span class="o">=</span><span class="n">date_vector</span><span class="p">,</span> <span class="n">date_names</span><span class="o">=</span><span class="n">names</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">med_count</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="s2">&quot;select count(*) from outliers;&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="o">-</span> <span class="n">ald_count</span>
+                <span class="o">-</span> <span class="n">threshold_count</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> outliers detected by median local disp method&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">med_count</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Collecting and patching the LCP time series&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">lcp_ts_patch</span><span class="p">(</span>
+                    <span class="n">date_fields</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Collecting outlier time series&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">outlier_ts_patch</span><span class="p">(</span>
+                    <span class="n">date_fields</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;collecting differential displacement time series&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">outlier_rel_ts_patch</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="SafeRoad.generate_report">
+<a class="viewcode-back" href="../../api/saferoad.saferoad.html#saferoad.SafeRoad.generate_report">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a PDF report containing maps and time series plots.</span>
+
+<span class="sd">        :param output_name: A string representing the name of the output PDF file endswith `.pdf` extension.</span>
+<span class="sd">        :type output_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">render_ts_plots_workers</span><span class="p">(</span>
+            <span class="n">patch_uid</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">outliers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+            <span class="n">dates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
+            <span class="n">outlier_center</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>  <span class="c1">#</span>
+            <span class="n">patch_center</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+            <span class="n">pspoints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+            <span class="n">lcp_point</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+            <span class="n">cum_disp</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+            <span class="n">avg_cum_disp</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+            <span class="n">std_cum_disp</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+            <span class="n">outlier_rel_ts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+            <span class="n">avg_lcp_disp</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+            <span class="n">std_lcp_disp</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+            <span class="n">lcp_disp</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+
+            <span class="c1"># plotting</span>
+            <span class="n">tsplotter</span> <span class="o">=</span> <span class="n">Plotter</span><span class="o">.</span><span class="n">TimeSeriesPane</span><span class="p">()</span>
+            <span class="c1"># 0</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_basemap_outlier</span><span class="p">(</span><span class="n">wkb_loads</span><span class="p">(</span><span class="n">outlier_center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">xy</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_all_outliers</span><span class="p">(</span><span class="n">outliers</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_square</span><span class="p">(</span><span class="n">wkb_loads</span><span class="p">(</span><span class="n">outlier_center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">xy</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_basemap_pspoint</span><span class="p">(</span><span class="n">wkb_loads</span><span class="p">(</span><span class="n">patch_center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">xy</span><span class="p">)</span>
+            <span class="c1"># 1</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_pspoint_dist</span><span class="p">(</span><span class="n">pspoints</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_lcp</span><span class="p">(</span><span class="n">lcp_point</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_outlier</span><span class="p">(</span><span class="n">outliers</span><span class="p">)</span>
+            <span class="c1"># 2</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_std_disp_graph</span><span class="p">(</span><span class="n">avg_cum_disp</span><span class="p">,</span> <span class="n">std_cum_disp</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_avg_disp_graph</span><span class="p">(</span><span class="n">avg_cum_disp</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_cum_disp_graph</span><span class="p">(</span><span class="n">cum_disp</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+
+            <span class="c1"># 3</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_std_rel_disp_graph</span><span class="p">(</span><span class="n">avg_lcp_disp</span><span class="p">,</span> <span class="n">std_lcp_disp</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_avg_rel_disp_graph</span><span class="p">(</span><span class="n">avg_lcp_disp</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_rel_disp_graph</span><span class="p">(</span><span class="n">outlier_rel_ts</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+
+            <span class="c1"># 4</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_std_lcp_disp_graph</span><span class="p">(</span><span class="n">avg_cum_disp</span><span class="p">,</span> <span class="n">std_cum_disp</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_avg_lcp_disp_graph</span><span class="p">(</span><span class="n">avg_cum_disp</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">plot_lcp_disp_graph</span><span class="p">(</span><span class="n">lcp_disp</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+            <span class="n">tsplotter</span><span class="o">.</span><span class="n">post_process</span><span class="p">()</span>
+
+            <span class="n">fig</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tsplotter</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+
+            <span class="n">buf</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+
+        <span class="c1"># export the results</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Generating and saving the report&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">PdfPages</span><span class="p">(</span><span class="n">output_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">pdf</span><span class="p">:</span>
+                <span class="c1"># bbox of the patches</span>
+
+                <span class="n">bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_table_bbox</span><span class="p">(</span>
+                        <span class="s2">&quot;patches&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="c1"># ps density and patch geometries</span>
+                <span class="n">ps_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_ps_density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="c1"># outliers and coordinates</span>
+                <span class="n">outliers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_outliers_map</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="c1"># cumulative displacement per point</span>
+                <span class="n">cum_disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_cum_disp_map</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="c1"># gcp average velocity per point</span>
+                <span class="n">gcp_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_ps_vel_gcp</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="c1"># lcp average velocity per point</span>
+                <span class="n">lcp_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_ps_vel_lcp</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+                <span class="c1"># plotting the first page -- maps</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting to render the map page&quot;</span><span class="p">)</span>
+                <span class="n">map_plotter</span> <span class="o">=</span> <span class="n">Plotter</span><span class="o">.</span><span class="n">MapPane</span><span class="p">()</span>
+                <span class="n">map_plotter</span><span class="o">.</span><span class="n">plot_basemap</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span>
+                <span class="n">map_plotter</span><span class="o">.</span><span class="n">plot_ps_density</span><span class="p">(</span><span class="n">ps_density</span><span class="p">)</span>
+                <span class="n">map_plotter</span><span class="o">.</span><span class="n">plot_outliers</span><span class="p">(</span><span class="n">outliers</span><span class="p">)</span>
+                <span class="n">map_plotter</span><span class="o">.</span><span class="n">plot_cum_disp</span><span class="p">(</span><span class="n">cum_disp</span><span class="p">)</span>
+                <span class="n">map_plotter</span><span class="o">.</span><span class="n">plot_gcp_velocity</span><span class="p">(</span><span class="n">gcp_vel</span><span class="p">)</span>
+                <span class="n">map_plotter</span><span class="o">.</span><span class="n">plot_lcp_velocity</span><span class="p">(</span><span class="n">lcp_vel</span><span class="p">)</span>
+                <span class="n">map_plotter</span><span class="o">.</span><span class="n">post_process</span><span class="p">()</span>
+                <span class="n">fig</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">map_plotter</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+                <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Map page has been rendered&quot;</span><span class="p">)</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Intiating time series rendering&quot;</span><span class="p">)</span>
+                <span class="c1"># collect the patch_ids which has outliers</span>
+                <span class="n">puids</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">patch_uids</span><span class="p">()</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                <span class="p">]</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">dates</span> <span class="o">=</span> <span class="n">extract_dates</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                            <span class="n">Pipeline</span><span class="o">.</span><span class="n">Processing</span><span class="o">.</span><span class="n">get_column_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">outliers_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_outliers_map</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+                <span class="c1"># prepare the data for parallel processing</span>
+                <span class="n">data_ready</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">puids</span><span class="p">:</span>
+                    <span class="n">outliers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_outlier_points</span><span class="p">(</span>
+                            <span class="n">patch_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">source_crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+                    <span class="n">patch_center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_patch_center</span><span class="p">(</span>
+                            <span class="n">patch_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">source_crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+                    <span class="n">pspoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_ps_points</span><span class="p">(</span>
+                            <span class="n">patch_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span>
+                            <span class="n">source_crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span><span class="p">,</span>
+                            <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ps_data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>  <span class="c1"># pspoints</span>
+
+                    <span class="n">lcp_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_lcp_point</span><span class="p">(</span>
+                            <span class="n">patch_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">source_crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>  <span class="c1"># lcp point</span>
+
+                    <span class="n">avg_cum_disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_avg_cum_disp_graph</span><span class="p">(</span>
+                            <span class="n">patch_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>  <span class="c1"># avg_cum_disp</span>
+
+                    <span class="n">std_cum_disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_std_cum_disp_graph</span><span class="p">(</span>
+                            <span class="n">patch_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>  <span class="c1"># std_cum_disp</span>
+
+                    <span class="n">avg_lcp_disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_avg_disp_lcp_graph</span><span class="p">(</span>
+                            <span class="n">patch_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>  <span class="c1"># avg_lcp_disp</span>
+
+                    <span class="n">std_lcp_disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_std_disp_lcp_graph</span><span class="p">(</span>
+                            <span class="n">patch_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>  <span class="c1"># std_lcp_disp</span>
+
+                    <span class="n">lcp_disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_lcp_disp_graph</span><span class="p">(</span>
+                            <span class="n">patch_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>  <span class="c1"># lcp_disp</span>
+
+                    <span class="k">for</span> <span class="n">outlier</span> <span class="ow">in</span> <span class="n">outliers</span><span class="p">:</span>
+                        <span class="n">o_id</span> <span class="o">=</span> <span class="n">outlier</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                            <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_center</span><span class="p">(</span>
+                                <span class="n">point_uid</span><span class="o">=</span><span class="n">o_id</span><span class="p">,</span> <span class="n">source_crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">computational_crs</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+                        <span class="n">cum_disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                            <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_cum_disp_graph</span><span class="p">(</span>
+                                <span class="n">outlier_id</span><span class="o">=</span><span class="n">o_id</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>  <span class="c1"># cum_disp</span>
+
+                        <span class="n">outlier_rel_ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                            <span class="n">Pipeline</span><span class="o">.</span><span class="n">Visualisation</span><span class="o">.</span><span class="n">get_outlier_rel_ts_graph</span><span class="p">(</span>
+                                <span class="n">outlier_id</span><span class="o">=</span><span class="n">o_id</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_scaling_factor_</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>  <span class="c1"># outlier_rel_ts</span>
+                        <span class="n">data_ready</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="n">uid</span><span class="p">,</span>
+                                <span class="n">outliers_map</span><span class="p">,</span>
+                                <span class="n">dates</span><span class="p">,</span>
+                                <span class="n">center</span><span class="p">,</span>
+                                <span class="n">patch_center</span><span class="p">,</span>
+                                <span class="n">pspoints</span><span class="p">,</span>
+                                <span class="n">lcp_point</span><span class="p">,</span>
+                                <span class="n">cum_disp</span><span class="p">,</span>
+                                <span class="n">avg_cum_disp</span><span class="p">,</span>
+                                <span class="n">std_cum_disp</span><span class="p">,</span>
+                                <span class="n">outlier_rel_ts</span><span class="p">,</span>
+                                <span class="n">avg_lcp_disp</span><span class="p">,</span>
+                                <span class="n">std_lcp_disp</span><span class="p">,</span>
+                                <span class="n">lcp_disp</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total pages to render for outliers: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_ready</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="n">png_pages</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;loky&quot;</span><span class="p">)(</span>
+                    <span class="n">delayed</span><span class="p">(</span><span class="n">render_ts_plots_workers</span><span class="p">)(</span>
+                        <span class="n">patch_uid</span><span class="p">,</span>
+                        <span class="n">outliers</span><span class="p">,</span>
+                        <span class="n">dates</span><span class="p">,</span>
+                        <span class="n">outlier_center</span><span class="p">,</span>
+                        <span class="n">patch_center</span><span class="p">,</span>
+                        <span class="n">pspoints</span><span class="p">,</span>
+                        <span class="n">lcp_point</span><span class="p">,</span>
+                        <span class="n">cum_disp</span><span class="p">,</span>
+                        <span class="n">avg_cum_disp</span><span class="p">,</span>
+                        <span class="n">std_cum_disp</span><span class="p">,</span>
+                        <span class="n">outlier_rel_ts</span><span class="p">,</span>
+                        <span class="n">avg_lcp_disp</span><span class="p">,</span>
+                        <span class="n">std_lcp_disp</span><span class="p">,</span>
+                        <span class="n">lcp_disp</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="p">(</span>
+                        <span class="n">patch_uid</span><span class="p">,</span>
+                        <span class="n">outliers</span><span class="p">,</span>
+                        <span class="n">dates</span><span class="p">,</span>
+                        <span class="n">outlier_center</span><span class="p">,</span>
+                        <span class="n">patch_center</span><span class="p">,</span>
+                        <span class="n">pspoints</span><span class="p">,</span>
+                        <span class="n">lcp_point</span><span class="p">,</span>
+                        <span class="n">cum_disp</span><span class="p">,</span>
+                        <span class="n">avg_cum_disp</span><span class="p">,</span>
+                        <span class="n">std_cum_disp</span><span class="p">,</span>
+                        <span class="n">outlier_rel_ts</span><span class="p">,</span>
+                        <span class="n">avg_lcp_disp</span><span class="p">,</span>
+                        <span class="n">std_lcp_disp</span><span class="p">,</span>
+                        <span class="n">lcp_disp</span><span class="p">,</span>
+                    <span class="p">)</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">data_ready</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All plots rendered, now saving to pdf&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">png</span> <span class="ow">in</span> <span class="n">png_pages</span><span class="p">:</span>
+                    <span class="n">img</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">png</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">)</span>
+                    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+                    <span class="c1"># ax = fig.add_subplot(111)</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set_frame_on</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All pages saved to pdf&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, SafeStruct.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
